@@ -5,10 +5,11 @@ import SiteHeader from "@/components/site-header";
 import SiteFooter from "@/components/site-footer";
 import { Inter } from "next/font/google";
 import { cn } from "@/lib/utils";
+import { siteConfig } from "@/config/site";
 
 export const metadata: Metadata = {
-  title: "Xmchx's blog",
-  description: "Technology & Social Life",
+  title: siteConfig.name,
+  description: siteConfig.description,
 };
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
@@ -22,14 +23,16 @@ export default function RootLayout({
     <html lang="en" className="scroll-pt-[3.5rem]">
       <body
         className={cn(
-          "min-h-screen  bg-gradient-to-b from-background-top to-background-bottom font-sans antialiased relative flex flex-col ",
+          "font-sans subpixel-antialiased tracking-wide",
           inter.variable
         )}
       >
         <BaseProvider>
-          <SiteHeader />
-          {children}
-          <SiteFooter />
+          <div className="min-h-screen flex flex-col bg-gradient-to-b from-background-top to-background-bottom">
+            <SiteHeader />
+            {children}
+            <SiteFooter />
+          </div>
         </BaseProvider>
       </body>
     </html>

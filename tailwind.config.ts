@@ -13,6 +13,10 @@ const config: Config = {
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],
       },
+      container: {
+        center: true,
+        padding: "1rem",
+      },
       colors: {
         background: "hsl(var(--background))",
         "background-top": "hsl(var(--background-top))", // custom

@@ -1,7 +1,8 @@
-import { Navbar } from "./navbar";
+import { MainNavbar } from "./main-navbar";
 import Link from "next/link";
 
 import { siteConfig } from "@/config/site";
+import MobileNavbar from "./mobile-navbar";
 
 function SiteHeader() {
   return (
@@ -9,9 +10,10 @@ function SiteHeader() {
       <div className="w-full h-full py-2 md:container">
         <div className="flex flex-row items-center justify-between gap-2 lg:gap-4 xl:gap-6 px-4">
           <Link href="/" className="flex flex-row items-center gap-2">
-            <span className="font-normal text-lg">{siteConfig.name}</span>
+            <span className="font-medium text-lg">{siteConfig.name}</span>
           </Link>
-          <Navbar />
+          <MainNavbar />
+          <MobileNavbar />
         </div>
       </div>
     </header>

@@ -7,6 +7,17 @@ export const siteConfig = {
     github: "https://github.com/xmchxup",
     personalSite: "https://xmchxup.github.io",
   },
+  navItems: [
+    { href: "/", label: "Home" },
+    {
+      href: "/archives",
+      label: "Archives",
+    },
+    {
+      href: "/about",
+      label: "About",
+    },
+  ],
 };
 
 export type SiteConfig = typeof siteConfig;

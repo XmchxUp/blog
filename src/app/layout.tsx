@@ -23,7 +23,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning={true}>
       <body
         className={cn(
-          "font-sans subpixel-antialiased tracking-wide",
+          "font-sans subpixel-antialiased tracking-wide text-foreground",
           inter.variable
         )}
       >

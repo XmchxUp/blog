@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 import Image from "next/image";
 import profilePic from "@/app/me.png";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: siteConfig.name,
@@ -35,8 +36,10 @@ export default function RootLayout({
             <main className="container text-foreground mx-auto py-4 md:py-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 flex-grow flex-shrink ">
               <div className="col-span-2 order-0">{children}</div>
 
+              {/* Left */}
               <aside className="-order-1 col-span-1 hidden md:block">
                 <div className="flex flex-col gap-4 w-full sticky top-3 lg:top-4">
+                  {/* Profile Card */}
                   <div className="rounded-xl border bg-card text-card-foreground shadow pt-6 px-2">
                     <div className="flex flex-col pt-0 p-6 items-center">
                       <div className="w-24 h-24 rounded-full border-2 border-gray-100">
@@ -74,9 +77,57 @@ export default function RootLayout({
                       </div>
                     </div>
                   </div>
+
+                  {/* Categories Card */}
+                  <div className="rounded-xl border bg-card text-card-foreground shadow">
+                    <div className="flex flex-col space-y-1.5 p-6 pb-4">
+                      <h3 className="text-md font-normal tracking-tight">
+                        Categories
+                      </h3>
+                    </div>
+                    <div className="flex flex-col space-y-1 px-4 p-6 pt-0">
+                      <Link
+                        href="/category/life"
+                        className="items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-xs flex flex-row gap-2 w-full font-normal"
+                      >
+                        <span className="text-sm flex-grow truncate">Life</span>
+                        <span className="text-sm">2</span>
+                      </Link>
+                      <Link
+                        href="/category/life"
+                        className="items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-xs flex flex-row gap-2 w-full font-normal"
+                      >
+                        <span className="text-sm flex-grow truncate">
+                          Technology
+                        </span>
+                        <span className="text-sm">20</span>
+                      </Link>
+                      <Link
+                        href="/category/life"
+                        className="items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-xs flex flex-row gap-2 w-full font-normal"
+                      >
+                        <span className="text-sm flex-grow truncate">
+                          Notes
+                        </span>
+                        <span className="text-sm">20</span>
+                      </Link>
+                      <Link
+                        href="/category/life"
+                        className="items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-xs flex flex-row gap-2 w-full font-normal"
+                      >
+                        <span className="text-sm flex-grow truncate">
+                          Moments
+                        </span>
+                        <span className="text-sm">20</span>
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/*  */}
                 </div>
               </aside>
 
+              {/* Right */}
               <aside className="order-1 col-span-1 hidden lg:block">
                 right
               </aside>

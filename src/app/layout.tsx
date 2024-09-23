@@ -30,7 +30,11 @@ export default function RootLayout({
         <BaseProvider>
           <div className="min-h-screen flex flex-col bg-gradient-to-b from-background-top to-background-bottom">
             <SiteHeader />
-            {children}
+            <main className="container text-foreground mx-auto py-4 md:py-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 flex-grow flex-shrink ">
+              <div className="col-span-2 order-0">{children}</div>
+              <aside className="-order-1 col-span-1">left</aside>
+              <aside className="order-1 col-span-1">right</aside>
+            </main>
             <SiteFooter />
           </div>
         </BaseProvider>

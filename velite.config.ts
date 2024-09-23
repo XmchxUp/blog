@@ -11,11 +11,12 @@ const posts = defineCollection({
       title: s.string().max(99), // Zod primitive type
       slug: s.path(), // auto generate slug from file path
       date: s.isodate(), // input Date-like string, output ISO Date string.
-      cover: s.image().optional(), // input image relative path, output image object with blurImage.
+      category: s.string().max(20),
+      cover: s.string().optional(),
       description: s.string().max(999).optional(),
       body: s.mdx(), // transform markdown to html
       metadata: s.metadata(), // extract markdown reading-time, word-count, etc.
-      published: s.boolean().default(true),
+      draft: s.boolean().default(false),
       tags: s.array(s.string()).optional(),
     })
     // more additional fields (computed fields)

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
-import Image from "next/image";
 
 interface PostItemProps {
   slug: string;

@@ -3,8 +3,7 @@ author: "韩立"
 title: "2022-10-16 周记 0x002"
 date: "2022-10-16"
 description: "weekely"
-ShowBreadCrumbs: false
-category: "weekly"
+category: "Life"
 tags: ["weekly"]
 draft: true
 ---

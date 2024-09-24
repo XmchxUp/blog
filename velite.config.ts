@@ -5,7 +5,7 @@ import { defineCollection, defineConfig, s } from "velite";
 
 const posts = defineCollection({
   name: "Post", // collection type name
-  pattern: "posts/**/*.mdx", // content files glob pattern
+  pattern: "posts/**/*.md", // content files glob pattern
   schema: s
     .object({
       title: s.string().max(99), // Zod primitive type
@@ -14,7 +14,7 @@ const posts = defineCollection({
       category: s.string().max(20),
       cover: s.string().optional(),
       description: s.string().max(999).optional(),
-      body: s.mdx(), // transform markdown to html
+      body: s.markdown(),
       metadata: s.metadata(), // extract markdown reading-time, word-count, etc.
       draft: s.boolean().default(false),
       tags: s.array(s.string()).optional(),

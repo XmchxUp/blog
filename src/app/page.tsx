@@ -1,15 +1,8 @@
-import Link from "next/link";
-import { Post, posts } from "#site/content";
-import { formatDate } from "@/lib/utils";
+import { posts } from "#site/content";
+import { sortPosts } from "@/lib/utils";
+import PostItem from "@/components/post-item";
 
 export default function Home() {
-  const sortPosts = (posts: Array<Post>) => {
-    return posts.sort((a, b) => {
-      if (a.date > b.date) return -1;
-      if (a.date < b.date) return 1;
-      return 0;
-    });
-  };
   const latestPosts = sortPosts(posts);
 
   return (
@@ -18,35 +11,13 @@ export default function Home() {
         {latestPosts.map(
           (post) =>
             !post.draft && (
-              <div
-                className="rounded-xl border bg-card text-card-foreground shadow "
+              <PostItem
                 title={post.title}
-                key={post.slug}
-              >
-                <div className="flex flex-col space-y-1.5 p-6 pb-2">
-                  <Link href="/">
-                    <h3 className="text-2xl font-medium tracking-tight">
-                      {post.title}
-                    </h3>
-                  </Link>
-                  <p className="text-sm text-muted-foreground flex flex-row flex-nowrap gap-2">
-                    <time>{formatDate(post.date)}</time>
-                    <span> · </span>
-                    <a
-                      title={post.category}
-                      className="hover:underline"
-                      href={`/category/${post.category}`}
-                    >
-                      {post.category}
-                    </a>
-                  </p>
-                </div>
-                <div className="p-6 pt-0">
-                  <div className=" text-pretty hyphens-auto ">
-                    {post.description}
-                  </div>
-                </div>
-              </div>
+                category={post.category}
+                slug={post.slug}
+                description={post.description}
+                date={post.date}
+              />
             )
         )}
       </div>

@@ -12,11 +12,13 @@ export default function Home() {
           (post) =>
             !post.draft && (
               <PostItem
+                key={post.slug}
                 title={post.title}
                 category={post.category}
                 slug={post.slug}
                 description={post.description}
                 date={post.date}
+                cover={post.cover}
               />
             )
         )}

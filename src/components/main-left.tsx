@@ -76,7 +76,7 @@ function MainLeftAside() {
         </AsideCard>
 
         {/* Archives Card */}
-        <div className="rounded-xl border bg-card text-card-foreground shadow">
+        <AsideCard>
           <div className="flex flex-col space-y-1.5 p-6 pb-2 pt-4">
             <h3 className="text-md font-normal tracking-tight">Archives</h3>
           </div>
@@ -84,6 +84,7 @@ function MainLeftAside() {
             {sortByDate(archives, true).map((archive) => {
               return (
                 <Link
+                  key={archive}
                   href={`/archive/${archive}`}
                   className="items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-xs flex flex-row gap-2 w-full font-normal"
                 >
@@ -93,10 +94,10 @@ function MainLeftAside() {
               );
             })}
           </div>
-        </div>
+        </AsideCard>
 
         {/* Tags Card */}
-        <div className="rounded-xl border bg-card text-card-foreground shadow">
+        <AsideCard>
           <div className="flex flex-col space-y-1.5 p-6 pb-2 pt-4">
             <h3 className="text-md font-normal tracking-tight">Tags</h3>
           </div>
@@ -113,9 +114,7 @@ function MainLeftAside() {
               );
             })}
           </div>
-        </div>
-
-        {/*  */}
+        </AsideCard>
       </div>
     </aside>
   );

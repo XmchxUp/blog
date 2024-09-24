@@ -6,6 +6,20 @@ const nextConfig = {
   webpack: config => {
     config.plugins.push(new VeliteWebpackPlugin())
     return config
+  },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**', // Allows any hostname
+        pathname: '/**', // Allows any path
+      },
+      {
+        protocol: 'http',
+        hostname: '**', // Allows any hostname
+        pathname: '/**', // Allows any path
+      },
+    ]
   }
 }
 export default nextConfig;

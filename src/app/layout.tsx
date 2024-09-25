@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
 import MainLeftAside from "@/components/main-left";
 import MainRightAside from "@/components/main-right";
+import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = {
   title: siteConfig.name,
@@ -38,6 +39,7 @@ export default function RootLayout({
               <MainRightAside />
             </main>
             <SiteFooter />
+            <Analytics />
           </div>
         </BaseProvider>
       </body>

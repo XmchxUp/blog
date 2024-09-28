@@ -7,15 +7,25 @@ import WakaTimeStats from "./wakatime-stats";
 function MainRightAside() {
   const latestPosts = sortPosts(posts).slice(0, 5);
 
-  const getDaysAgo = (input: string | number) => {
+  const getAgoDateFormat = (input: string | number) => {
     const d = new Date(input);
     const today = new Date();
 
     const diffInMs = today.getTime() - d.getTime();
 
     const days = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+    const hours = Math.floor(
+      (diffInMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
+    const minutes = Math.floor((diffInMs % (1000 * 60 * 60)) / (1000 * 60));
 
-    return `${days} days ago`;
+    if (days > 0) {
+      return `${days} days ago`;
+    } else if (hours > 0) {
+      return `${hours} hours ago`;
+    } else {
+      return `${minutes} minutes ago`;
+    }
   };
 
   return (
@@ -53,7 +63,7 @@ function MainRightAside() {
                       {post.title}
                     </Link>
                     <span className="text-xs text-secondary-foreground">
-                      {getDaysAgo(post.date)}
+                      {getAgoDateFormat(post.date)}
                     </span>
                   </div>
                 )

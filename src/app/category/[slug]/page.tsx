@@ -8,10 +8,8 @@ interface CategoryPageProps {
 }
 
 async function getPostsFromParams(params: CategoryPageProps["params"]) {
-  return posts.filter(
-    (post) =>
-      !post.draft && post.category.toLowerCase() == params.slug.toLowerCase()
-  );
+  const slug = decodeURIComponent(params.slug);
+  return posts.filter((post) => !post.draft && post.category == slug);
 }
 
 async function CategoryPage({ params }: CategoryPageProps) {

@@ -15,7 +15,9 @@ function PostsByYear({ title, posts }: PostsByYearProp) {
     <div className="space-y-8">
       <AsideCard>
         <div className="flex flex-col space-y-1.5 p-6">
-          <h1 className="text-2xl font-medium tracking-tight">{title}</h1>
+          <h1 className="text-2xl font-medium tracking-tight">
+            {decodeURIComponent(title)}
+          </h1>
           <p className="text-muted-foreground text-sm">
             Total {posts.length} posts published.
           </p>
@@ -43,7 +45,9 @@ function PostsByYear({ title, posts }: PostsByYearProp) {
                         <p className="text-muted-foreground text-sm flex-row basis-auto gap-2 line-clamp-1 truncate">
                           <time>{formatDate(post.date)}</time>
                           <span> · </span>
-                          <Link href="#">{post.category}</Link>
+                          <Link href={`/${post.category}`}>
+                            {post.category}
+                          </Link>
                         </p>
                       </div>
                       {post.cover && (

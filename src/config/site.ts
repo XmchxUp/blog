@@ -1,7 +1,7 @@
 export const siteConfig = {
   name: "Xmchx's Blog",
   url: "https://xmchxup.github.io",
-  description: "TEST",
+  description: "Technology & Social Life",
   author: "Xmchx",
   links: {
     github: "https://github.com/xmchxup",

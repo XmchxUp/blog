@@ -25,7 +25,9 @@ const posts = defineCollection({
       body: s.mdx(),
       metadata: s.metadata(), // extract markdown reading-time, word-count, etc.
       draft: s.boolean().default(false),
+      toc: s.toc(),
       tags: s.array(s.string()).optional(),
+      excerpt: s.excerpt(),
     })
     .transform(computedFields),
 });

@@ -34,7 +34,7 @@ function MainLeftAside() {
             <div className="flex flex-row gap-4 justify-center w-full pt-4">
               <div className="flex flex-col gap-1 items-center">
                 <span className="text-lg truncate text-primary">
-                  {posts.length}
+                  {posts.filter((post) => !post.draft).length}
                 </span>
                 <span className="text-sm text-primary">Posts</span>
               </div>
@@ -85,7 +85,7 @@ function MainLeftAside() {
               return (
                 <Link
                   key={archive}
-                  href={`/archive/${archive}`}
+                  href={`/archives/${archive}`}
                   className="items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-xs flex flex-row gap-2 w-full font-normal"
                 >
                   <span className="text-sm flex-grow truncate">{archive}</span>

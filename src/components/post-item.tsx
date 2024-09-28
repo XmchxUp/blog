@@ -7,6 +7,7 @@ interface PostItemProps {
   title: string;
   category: string;
   date: string;
+  excerpt: string;
   description?: string;
   cover?: string;
 }
@@ -17,6 +18,7 @@ function MainPostItem({
   category,
   description,
   date,
+  excerpt,
   cover,
 }: PostItemProps) {
   return (
@@ -62,7 +64,9 @@ function MainPostItem({
         </p>
       </div>
       <div className="p-6 pt-0">
-        <div className=" text-pretty hyphens-auto ">{description}</div>
+        <div className=" text-pretty hyphens-auto">
+          {description ?? excerpt}
+        </div>
       </div>
     </div>
   );

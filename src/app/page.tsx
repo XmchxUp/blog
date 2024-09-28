@@ -34,6 +34,7 @@ export default function Home({ searchParams }: HomePageProps) {
                 description={post.description}
                 date={post.date}
                 cover={post.cover}
+                excerpt={post.excerpt}
               />
             )
         )}

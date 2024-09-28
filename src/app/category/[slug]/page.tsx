@@ -1,5 +1,4 @@
-import { Post, posts } from "#site/content";
-import { notFound } from "next/navigation";
+import { posts } from "#site/content";
 import "@/app/mdx.css";
 import AsideCard from "@/components/aside-card";
 import { categorizedPostsByYear, formatDate } from "@/lib/utils";

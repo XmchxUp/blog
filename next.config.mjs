@@ -8,18 +8,19 @@ const nextConfig = {
     return config
   },
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: '**', // Allows any hostname
-        pathname: '/**', // Allows any path
-      },
-      {
-        protocol: 'http',
-        hostname: '**', // Allows any hostname
-        pathname: '/**', // Allows any path
-      },
-    ]
+    domains: ['images.unsplash.com'],
+    // remotePatterns: [
+    //   {
+    //     protocol: 'https',
+    //     hostname: '**', // Allows any hostname
+    //     pathname: '/**', // Allows any path
+    //   },
+    //   {
+    //     protocol: 'http',
+    //     hostname: '**', // Allows any hostname
+    //     pathname: '/**', // Allows any path
+    //   },
+    // ]
   }
 }
 export default nextConfig;

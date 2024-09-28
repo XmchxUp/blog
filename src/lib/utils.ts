@@ -73,3 +73,24 @@ export function sortByCount(elements: Record<string, number>, desc?: boolean) {
     return elements[a] - elements[b];
   });
 }
+
+export function categorizedPostsByYear(posts: Array<Post>) {
+  const categorizedPosts = posts.reduce<Record<string, Post[]>>((acc, post) => {
+    const year = new Date(post.date).getFullYear().toString();
+    if (!acc[year]) {
+      acc[year] = [];
+    }
+    acc[year].push(post);
+    return acc;
+  }, {});
+
+  const res: Record<string, Post[]> = {};
+
+  Object.keys(categorizedPosts).forEach((year) => {
+    res[year] = categorizedPosts[year].sort((a, b) => {
+      return b.date.localeCompare(a.date);
+    });
+  });
+
+  return res;
+}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatDate } from "@/lib/utils";
+import Image from "next/image";
 
 interface PostItemProps {
   slug: string;
@@ -10,7 +11,7 @@ interface PostItemProps {
   cover?: string;
 }
 
-function PostItem({
+function MainPostItem({
   title,
   slug,
   category,
@@ -20,18 +21,28 @@ function PostItem({
 }: PostItemProps) {
   return (
     <div
-      className="rounded-xl border bg-card text-card-foreground shadow "
+      className="print:rounded-none rounded-xl print:border-none border print:bg-transparent bg-card text-card-foreground print:shadow-none shadow"
       title={title}
     >
       {cover && (
         <Link href={"/" + slug}>
-          <img
-            src={cover}
-            alt={title}
-            width="100%"
-            height="100%"
-            className="rounded-t-md h-48 w-full object-cover"
-          />
+          <div
+            style={{
+              position: "relative",
+              width: "100%",
+              paddingBottom: "42.8571%",
+            }}
+          >
+            <div className="position: absolute; inset: 0px;">
+              <Image
+                src={cover}
+                alt={title}
+                className="rounded-t-md h-48 w-full object-cover"
+                fill={true}
+                objectFit="cover"
+              />
+            </div>
+          </div>
         </Link>
       )}
       <div className="flex flex-col space-y-1.5 p-6 pb-2">
@@ -41,13 +52,13 @@ function PostItem({
         <p className="text-sm text-muted-foreground flex flex-row flex-nowrap gap-2">
           <time>{formatDate(date)}</time>
           <span> · </span>
-          <a
+          <Link
             title={category}
             className="hover:underline"
             href={`/category/${category}`}
           >
             {category}
-          </a>
+          </Link>
         </p>
       </div>
       <div className="p-6 pt-0">
@@ -57,4 +68,4 @@ function PostItem({
   );
 }
 
-export default PostItem;
+export default MainPostItem;

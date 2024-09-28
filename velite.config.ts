@@ -40,7 +40,7 @@ export default defineConfig({
     clean: true,
   },
   collections: { posts },
-  markdown: {
+  mdx: {
     rehypePlugins: [
       rehypeSlug,
       [rehypePrettyCode, { theme: "github-dark" }],

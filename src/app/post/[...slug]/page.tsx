@@ -43,7 +43,7 @@ async function PostPage({ params }: PostPageProps) {
         className="shrink-0 bg-border h-[1px] w-full"
       ></div>
       <div className="p-6 pt-4">
-        <div className="prose prose-slate dark:prose-invert text-pretty hyphens-auto style_article__6VkBw">
+        <div className="prose prose-slate dark:prose-invert text-pretty hyphens-auto">
           <MDXContent code={post.body} />
         </div>
       </div>

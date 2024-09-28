@@ -52,7 +52,10 @@ function MainRightAside() {
             {latestPosts.map(
               (post) =>
                 !post.draft && (
-                  <div className="flex flex-col w-full">
+                  <div
+                    className="flex flex-col w-full"
+                    key={`recent-articles-${post.slug}`}
+                  >
                     <Link
                       className="text-sm font-normal hover:underline"
                       href={`/${post.slug}`}

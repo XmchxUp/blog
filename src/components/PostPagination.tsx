@@ -10,12 +10,15 @@ import {
 } from "@/components/ui/pagination";
 import { usePathname, useSearchParams } from "next/navigation";
 
-interface PostPaginationProps {
+interface CustomPaginationProps {
   totalPages: number;
   className?: string;
 }
 
-export function PostPagination({ totalPages, className }: PostPaginationProps) {
+export function CustomPagination({
+  totalPages,
+  className,
+}: CustomPaginationProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 

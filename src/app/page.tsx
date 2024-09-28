@@ -1,7 +1,7 @@
 import { posts } from "#site/content";
 import { sortPosts } from "@/lib/utils";
 import PostItem from "@/components/post-item";
-import { PostPagination } from "@/components/PostPagination";
+import { CustomPagination } from "@/components/PostPagination";
 
 const POSTS_PER_PAGE = 5;
 
@@ -38,7 +38,7 @@ export default function Home({ searchParams }: HomePageProps) {
             )
         )}
       </div>
-      <PostPagination
+      <CustomPagination
         totalPages={totalPages}
         className="mx-auto flex w-full justify-center"
       />

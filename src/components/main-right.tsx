@@ -2,6 +2,7 @@ import Link from "next/link";
 import AsideCard from "./aside-card";
 import { posts } from "#site/content";
 import { sortPosts } from "@/lib/utils";
+import WakaTimeStats from "./wakatime-stats";
 
 function MainRightAside() {
   const latestPosts = sortPosts(posts).slice(0, 5);
@@ -26,18 +27,7 @@ function MainRightAside() {
             <h3 className="tracking-tight text-md font-normal">Coding Stats</h3>
           </div>
           <div className="p-6 flex flex-col pt-2 gap-2">
-            <div className="flex flex-row justify-between">
-              <span className="text-sm">Daily Average</span>
-              <span className="text-sm">2 hrs 5 mins</span>
-            </div>
-            <div className="flex flex-row justify-between">
-              <span className="text-sm">Last Week Total</span>
-              <span className="text-sm">12 hrs 5 mins</span>
-            </div>
-            <div className="flex flex-row justify-between">
-              <span className="text-sm">Working Days</span>
-              <span className="text-sm">6 Days</span>
-            </div>
+            <WakaTimeStats />
           </div>
         </AsideCard>
 

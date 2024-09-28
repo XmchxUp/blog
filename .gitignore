@@ -37,3 +37,6 @@ next-env.d.ts
 
 .velite
 public/static
+.env
+.env.production
+.env.local

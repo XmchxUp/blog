@@ -1,7 +1,7 @@
 import { posts } from "#site/content";
 import { sortPosts } from "@/lib/utils";
 import MainPostItem from "@/components/post-item";
-import { CustomPagination } from "@/components/PostPagination";
+import { CustomPagination } from "@/components/custom-pagination";
 
 const POSTS_PER_PAGE = 5;
 

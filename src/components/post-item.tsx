@@ -65,7 +65,7 @@ function MainPostItem({
       </div>
       <div className="p-6 pt-0">
         <div className=" text-pretty hyphens-auto">
-          {description ?? excerpt}
+          {description ?? excerpt.substring(0, 50)}
         </div>
       </div>
     </div>

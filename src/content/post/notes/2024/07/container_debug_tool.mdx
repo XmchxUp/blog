@@ -1,0 +1,29 @@
+---
+category: "Technology"
+date: "2024-07-01 22:40"
+title: "容器调试工具"
+tags: ["Usage", "Tool"]
+---
+
+## ctl/crictl
+
+## nsenter
+
+```sh
+nsenter -t <pid> -n <command>
+```
+
+由于容器内部经常没有一些工具的安装如 ping/tcpdump/netstat/nslookup/ip route 等等，每个容器一个个安装起来非常麻烦，
+使用此工具则可以避免安装
+
+pid 查看一般容器 ctl 有提供 inspect 里面会有 pid，如
+
+```sh
+docker inspect xxx | grep -i pid
+
+crictl inspect xx | grep -i pid
+```
+
+## image 的 copy
+
+使用 ctl 让 image 导出导入的时候，会出现`invalid tar header`，大概率是文件传输后不完整的问题。

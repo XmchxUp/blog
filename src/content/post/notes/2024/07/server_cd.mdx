@@ -1,0 +1,20 @@
+---
+category: "Technology"
+date: "2024-07-03 22:40"
+title: "服务部署方案"
+tags: ["Usage", "Maintenance"]
+---
+
+### Linux Systemd
+
+之前使用 screen 之前日志很麻烦，使用加上 nohup 后还行，但是重启还是需要杀掉再启两步。
+
+编写个 systemd service 配置，然后就可以使用 systemctl/journalctl 了。
+
+### Docker
+
+主要就是编写 Dockerfile 和 docker-compose 文件
+
+### K8S
+
+集群部署的选择

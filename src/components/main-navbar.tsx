@@ -15,7 +15,7 @@ export function MainNavbar() {
             <Link
               key={item.href}
               href={item.href}
-              className="rounded-md bg-background px-4 py-2  font-medium hover:bg-accent text-foreground"
+              className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-none disabled:pointer-events-none disabled:opacity-50 data-[active]:bg-accent/50 data-[state=open]:bg-accent/50 font-medium"
             >
               {item.label}
             </Link>
@@ -31,12 +31,21 @@ export function MainNavbar() {
           <span className="sr-only">Search</span>
         </Link>
         <Link
+          href={siteConfig.links.runningPage}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex text-foreground items-center justify-center whitespace-nowrap rounded-md  font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
+        >
+          <Icons.running className="h-4 w-4" />
+          <span className="sr-only">RunningPage</span>
+        </Link>
+        <Link
           href={siteConfig.links.github}
           target="_blank"
           rel="noreferrer"
           className="inline-flex text-foreground items-center justify-center whitespace-nowrap rounded-md  font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
         >
-          <Icons.gitHub className="h-4 w-4" />
+          <Icons.github className="h-4 w-4" />
           <span className="sr-only">GitHub</span>
         </Link>
         <div className="inline-flex text-foreground items-center justify-center whitespace-nowrap rounded-md  font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">

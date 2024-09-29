@@ -9,6 +9,11 @@ const nextConfig = {
         destination: '/post/about',
         permanent: true,
       },
+      {
+        source: '/hobby_project',
+        destination: '/post/hobby_project',
+        permanent: true,
+      },
     ];
   },
   // othor next config here...

@@ -1,0 +1,68 @@
+---
+category: "Technology"
+date: "2024-08-06 22:40"
+title: "数据库中的Query Execution"
+tags: ["Practice", "CS", "Database"]
+---
+
+## Project #3 - Query Execution
+
+[online shell](https://15445.courses.cs.cmu.edu/fall2022/bustub/)
+
+![](https://15445.courses.cs.cmu.edu/fall2022/project3/img/project-structure.svg)
+
+### Task1
+
+SeqScan Executor  
+使用 TableInfo 中的 iterator 遍历
+
+Insert Executor  
+不断从 child_executor 获得 tuple，然后插入，更新索引
+
+Delete Executor  
+类似 Insert，不过是逻辑删除
+
+### Task2
+
+Aggregation Executor  
+init 时构造 SimpleAggregationHashTable
+
+```sql
+SELECT min(t.z), max(t.z), sum(t.z) FROM t GROUP BY t.x, t.y;
+
+Agg { types=[min, max, sum], aggregates=[t.z, t.z, t.z], group_by=[t.x, t.y] }
+
+key = [t.x, t.y], value = [t.z, t.z, t.z]
+```
+
+```sql
+SELECT colA, MIN(colB) FROM __mock_table_1 GROUP BY colA;
+/* 无输出 */
+SELECT colA, MIN(colB) FROM __mock_table_1;
+/* 输出NULL 或 0 */
+```
+
+NestedLoopJoin
+
+```
+for outer_tuple in outer_table:
+    for inner_tuple in inner_table:
+        if inner_tuple matched outer_tuple:
+            emit
+```
+
+需要注意重围 inner_table 的 iterator，匹配到了还需要继续执行剩下的元素(yield 逻辑)  
+left join 和 right join 的 null 语义
+
+### Task3
+
+Sort  
+再 Init 过程中加载所有数据，并 sort，
+
+Limit
+
+Top-N Optimization Rule
+
+默认的优化器 操作`EXPLAIN SELECT * FROM __mock_table_1 ORDER BY colA LIMIT 10;` 需要先对所有数据排序，再取前 10 个，效率低下。考虑使用 topn 堆
+
+先写优化器，再写对应的算子。

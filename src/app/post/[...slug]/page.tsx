@@ -66,7 +66,12 @@ async function getPostFromParams(params: PostPageProps["params"]) {
 
 async function PostPage({ params }: PostPageProps) {
   const post = await getPostFromParams(params);
-  if (!post || (post.draft && post.slugAsParams != "about")) {
+  if (
+    !post ||
+    (post.draft &&
+      post.slugAsParams != "about" &&
+      post.slugAsParams != "hobby_project")
+  ) {
     notFound();
   }
 

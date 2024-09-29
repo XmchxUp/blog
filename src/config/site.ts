@@ -6,6 +6,7 @@ export const siteConfig = {
   links: {
     github: "https://github.com/xmchxup",
     personalSite: "https://xmchxup.github.io",
+    runningPage: "https://xmchxup.github.io/running_page",
   },
   navItems: [
     { href: "/", label: "Home" },
@@ -16,6 +17,10 @@ export const siteConfig = {
     {
       href: "/about",
       label: "About",
+    },
+    {
+      href: "/hobby_project",
+      label: "Hobby Project",
     },
   ],
 };

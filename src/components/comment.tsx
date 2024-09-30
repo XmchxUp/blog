@@ -105,7 +105,6 @@ const CustomWalineComment = ({ postPath }: WalineCommentProps) => {
       },
     });
 
-    console.log(resp);
     if (resp.data) {
       setComments((prevComments) => {
         const updatedComments = [...prevComments];

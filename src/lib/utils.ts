@@ -99,3 +99,24 @@ export const isValidEmail = (email: string) => {
   const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   return regex.test(email);
 };
+
+export const getDateAgoFormat = (input: string | number) => {
+  const d = new Date(input);
+  const today = new Date();
+
+  const diffInMs = today.getTime() - d.getTime();
+
+  const days = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
+  const hours = Math.floor(
+    (diffInMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+  );
+  const minutes = Math.floor((diffInMs % (1000 * 60 * 60)) / (1000 * 60));
+
+  if (days > 0) {
+    return `${days} days ago`;
+  } else if (hours > 0) {
+    return `${hours} hours ago`;
+  } else {
+    return `${minutes} minutes ago`;
+  }
+};

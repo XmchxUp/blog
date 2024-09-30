@@ -1,32 +1,38 @@
+"use client";
 import Link from "next/link";
 import AsideCard from "./aside-card";
 import { posts } from "#site/content";
-import { sortPosts } from "@/lib/utils";
+import { getDateAgoFormat, sortPosts } from "@/lib/utils";
 import WakaTimeStats from "./wakatime-stats";
+import { useEffect, useState } from "react";
+import { getRecentComment, RecentCommentData } from "@waline/api";
 
 function MainRightAside() {
+  const WALINE_SERVER_URL =
+    "https://waline-git-main-xmchxups-projects.vercel.app/";
+
+  const [recentComments, setRecentComments] = useState<RecentCommentData[]>([]);
+  const [loadRecentCommentError, setLoadRecentCommentError] =
+    useState<boolean>(false);
   const latestPosts = sortPosts(posts).slice(0, 5);
 
-  const getAgoDateFormat = (input: string | number) => {
-    const d = new Date(input);
-    const today = new Date();
-
-    const diffInMs = today.getTime() - d.getTime();
-
-    const days = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-    const hours = Math.floor(
-      (diffInMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    );
-    const minutes = Math.floor((diffInMs % (1000 * 60 * 60)) / (1000 * 60));
-
-    if (days > 0) {
-      return `${days} days ago`;
-    } else if (hours > 0) {
-      return `${hours} hours ago`;
-    } else {
-      return `${minutes} minutes ago`;
-    }
-  };
+  useEffect(() => {
+    const fetchComments = async () => {
+      const resp = await getRecentComment({
+        serverURL: WALINE_SERVER_URL,
+        count: 5,
+        lang: navigator.language,
+      });
+      console.log("=====", resp);
+      if ("data" in resp) {
+        setLoadRecentCommentError(false);
+        setRecentComments(resp.data as RecentCommentData[]);
+      } else {
+        setLoadRecentCommentError(true);
+      }
+    };
+    fetchComments();
+  }, []);
 
   return (
     <aside className="order-1 col-span-1 hidden lg:block">
@@ -63,7 +69,7 @@ function MainRightAside() {
                       {post.title}
                     </Link>
                     <span className="text-xs text-secondary-foreground">
-                      {getAgoDateFormat(post.date)}
+                      {getDateAgoFormat(post.date)}
                     </span>
                   </div>
                 )
@@ -79,29 +85,38 @@ function MainRightAside() {
             </h3>
           </div>
           <div className="p-6 flex flex-col pt-2 gap-2">
-            <div className="flex flex-col w-full relative">
-              {/* TODO: add comment link to post */}
-              <Link
-                className="text-sm font-normal hover:underline truncate w-full"
-                href={"/xxxx"}
-                target="_blank"
-              >
-                <div className="prose prose-slate dark:prose-invert w-full">
-                  <p className="text-sm font-normal">懒得喷，扣 1 送雄安户口</p>
-                </div>
-              </Link>
-              <span className="text-xs text-secondary-foreground">
-                18 hours ago by{" "}
-                {/* TODO: add comment author blog link & name */}
-                <Link
-                  className="hover:underline"
-                  href={"/xxxx"}
-                  target="_blank"
+            {recentComments.length > 0 ? (
+              recentComments.map((comment) => (
+                <div
+                  className="flex flex-col w-full relative"
+                  key={`re-comment-${comment.objectId}`}
                 >
-                  xxxx
-                </Link>
-              </span>
-            </div>
+                  <Link
+                    className="text-sm font-normal hover:underline truncate w-full"
+                    href={`/${comment.url}`}
+                  >
+                    <div
+                      className="prose prose-slate dark:prose-invert w-full text-sm font-normal"
+                      dangerouslySetInnerHTML={{ __html: comment.comment }}
+                    ></div>
+                  </Link>
+                  <span className="text-xs text-secondary-foreground">
+                    {getDateAgoFormat(comment.time)}{" "}
+                    <Link className="hover:underline" href={`/${comment.url}`}>
+                      {comment.nick || "unknow"}
+                    </Link>
+                  </span>
+                </div>
+              ))
+            ) : (
+              <div className="p-6 flex flex-col pt-2 gap-2">
+                <p className="py-12 text-center text-sm">
+                  {loadRecentCommentError
+                    ? "Error while fetching recent comments."
+                    : ""}
+                </p>
+              </div>
+            )}
           </div>
         </AsideCard>
       </div>

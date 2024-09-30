@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, memo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   addComment,
   getComment,

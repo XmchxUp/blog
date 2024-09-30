@@ -5,7 +5,7 @@ export const siteConfig = {
   author: "Xmchx",
   links: {
     github: "https://github.com/xmchxup",
-    personalSite: "https://xmchxup.github.io",
+    personalSite: "https://xmchx.vercel.app/",
     runningPage: "https://xmchxup.github.io/running_page",
   },
   navItems: [

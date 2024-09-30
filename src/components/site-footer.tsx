@@ -1,3 +1,5 @@
+import { siteConfig } from "@/config/site";
+
 function SiteFooter() {
   return (
     <footer className="h-16 bg-background text-secondary-foreground print:hidden">
@@ -7,7 +9,7 @@ function SiteFooter() {
           <a
             rel="author noopener"
             className="hover:underline text-primary"
-            href="https://xmchxup.github.io"
+            href={siteConfig.links.personalSite}
           >
             Xmchx
           </a>

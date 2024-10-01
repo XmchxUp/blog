@@ -1,0 +1,80 @@
+---
+category: "Technology"
+date: "2024-09-30 22:40"
+title: "重写博客系统"
+tags: ["Frontend Development", "Practice"]
+---
+
+[Repo](https://github.com/XmchxUp/blog)
+
+> 主要格式是模仿[AHdark's Blog - Technology & Social Life](https://www.ahdark.blog/)
+
+## 免费 API 通过 ip 确定地理位置
+
+[API](https://socialsisteryi.github.io/bilibili-API-collect/docs/clientinfo/ip.html#%E6%A0%B9%E6%8D%AE%E8%AF%B7%E6%B1%82ip%E7%A1%AE%E5%AE%9A%E5%B1%9E%E5%9C%B0)
+
+## 评论系统
+
+主要使用开源 waline 系统，但是为了适配样式，自己使用 API 写了个简单的前端。
+
+## Taiwindcss
+
+自定义颜色，
+
+```js
+import type { Config } from "tailwindcss";
+
+const config: Config = {
+  darkMode: ["class"],
+  content: [
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        background: "hsl(var(--background))",
+        "background-top": "hsl(var(--background-top))", // custom
+        "background-bottom": "hsl(var(--background-bottom))",
+```
+
+```css
+:root {
+  --background: 0 0% 100%;
+  --foreground: 240 10% 3.9%;
+  --background-top: 240 4.8% 95.9%;
+  --background-bottom: 240 4.8% 100%;
+```
+
+后续可以直接在 className 使用
+
+## Search
+
+Fuse.js
+
+## Nextjs
+
+## 1. **`generateStaticParams`**
+
+`generateStaticParams` 是用于在 **静态站点生成 (Static Site Generation, SSG)** 时指定动态路由的预生成参数的函数。当你有动态路径（例如基于 `id` 或 `slug` 的路由），可以通过 `generateStaticParams` 函数为这些路径预先生成静态页面。
+
+#### 场景：
+
+假设你有一个博客，每篇文章的路径是基于 `slug` 的动态路由，例如 `/posts/[slug]`。你可以使用 `generateStaticParams` 在构建时生成所有 `slug` 对应的静态页面。
+
+## **`generateMetadata`**
+
+`generateMetadata` 是 Next.js 提供的用于动态生成页面元数据的 API。你可以根据页面内容或动态数据生成 SEO 元数据，如 `<title>`、`<meta>` 标签等。这可以用来优化页面在搜索引擎中的展示，或自定义 Open Graph、Twitter 卡片等社交媒体分享的预览信息。
+
+## . **Open Graph (OG) Route**
+
+`og route` 是用于动态生成 **Open Graph (OG)** 图片的机制。Open Graph 是一个标准，允许你在社交媒体上分享网页链接时显示图片、标题、描述等元数据。
+
+Next.js 提供了一个强大的工具，叫 **Dynamic Open Graph Images**，用于在页面被分享时生成动态图片（例如展示文章标题、作者、发布日期等内容）。
+
+#### 示例：动态生成 Open Graph 图片
+
+在 Next.js 中，借助 `@vercel/og` 库，可以动态生成 Open Graph 图片，常用于在文章或产品页面被分享时显示自定义的预览图片。
+
+你可以通过创建一个 `route.ts` 文件，并使用 `@vercel/og` 生成动态图片。

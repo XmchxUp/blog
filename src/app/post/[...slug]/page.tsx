@@ -104,9 +104,7 @@ async function PostPage({ params }: PostPageProps) {
         </div>
       </article>
       <CustomWalineComment postPath={post.slug} />
-      <div className="print:rounded-none rounded-xl print:border-none border print:bg-transparent bg-card text-card-foreground print:shadow-none shadow fixed bottom-4 right-4 lg:right-6 transition-opacity print:hidden">
-        <ScrollToTop />
-      </div>
+      <ScrollToTop />
     </div>
   );
 }

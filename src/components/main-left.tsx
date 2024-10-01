@@ -102,17 +102,19 @@ function MainLeftAside() {
             <h3 className="text-md font-normal tracking-tight">Tags</h3>
           </div>
           <div className="p-6 flex flex-row flex-wrap items-center pt-2 px-4">
-            {sortByCount(tags, true).map((tag) => {
-              return (
-                <Link
-                  key={tag}
-                  href={`/tag/${tag}`}
-                  className="inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-sm font-normal"
-                >
-                  {tag}
-                </Link>
-              );
-            })}
+            {sortByCount(tags, true)
+              .slice(0, 10)
+              .map((tag) => {
+                return (
+                  <Link
+                    key={tag}
+                    href={`/tag/${tag}`}
+                    className="inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-sm font-normal"
+                  >
+                    {tag}
+                  </Link>
+                );
+              })}
           </div>
         </AsideCard>
       </div>

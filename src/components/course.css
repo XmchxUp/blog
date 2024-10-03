@@ -1,0 +1,24 @@
+tr {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+td.piccol {
+  flex: 1; /* 控制宽度分配 */
+  text-align: center;
+}
+
+td.textcol {
+  flex: 3; /* 控制宽度分配 */
+  text-align: center;
+}
+
+td img {
+  max-width: 100%;
+  height: auto;
+}
+
+.inline-image {
+  vertical-align: middle; /* 使内联图像与文本垂直居中对齐 */
+}

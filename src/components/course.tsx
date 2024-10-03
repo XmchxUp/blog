@@ -284,7 +284,8 @@ function Course() {
             <p>
               <b>
                 <a href="https://csapp.cs.cmu.edu/">CMU 15-213:</a>
-                Computer Systems: A Programmer's Perspective, 3/E (CS:APP3e)
+                Computer Systems: A Programmer&apos;s Perspective, 3/E
+                (CS:APP3e)
               </b>
               <img
                 className="inline-image"

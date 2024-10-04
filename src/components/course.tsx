@@ -130,6 +130,28 @@ function Course() {
           </td>
         </tr>
         <tr>
+          <td className="piccol"></td>
+          <td className="textcol">
+            <p>
+              <b>
+                <a href="https://web.stanford.edu/class/archive/cs/cs106b/cs106b.1224/">
+                  CS106B :
+                </a>
+                Programming Abstractions
+              </b>
+              <img
+                className="inline-image"
+                src="https://skillicons.dev/icons?i=cpp&theme=light"
+              />
+            </p>
+            <p>
+              <a href="https://github.com/cs-learning-every-day/CS106B">
+                -{">"}
+              </a>
+            </p>
+          </td>
+        </tr>
+        <tr>
           <td className="piccol">
             <img src="https://github.com/XmchxUp/picx-images-hosting/raw/master/20240909/image.92q30hlr2g.webp" />
           </td>

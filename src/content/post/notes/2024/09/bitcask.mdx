@@ -5,14 +5,6 @@ category: "Technology"
 tags: ["CS", "Practice"]
 ---
 
-[https://riak.com/assets/bitcask-intro.pdf](https://riak.com/assets/bitcask-intro.pdf)
-
-[Bitcask - A Log-Structured fast KV store](https://arpitbhayani.me/blogs/bitcask/)
-
-[prologic/bitcask: 🔑 A high performance Key/Value store written in Go with a predictable read/write performance and high throughput. Uses a Bitcask on-disk layout (LSM+WAL) similar to Riak. - bitcask - Mills](https://git.mills.io/prologic/bitcask)
-
-[RoseDB Labs · GitHub](https://github.com/rosedblabs)
-
 ## Bitcask
 
 Bitcask 是一种高效的键值存储模型，最初由 Riak 数据库系统的开发团队 Basho Technologies 引入。它以其极高的读写性能和简洁的设计而著称，特别适合某些类型的工作负载，如读多写少、数据较小、需要高吞吐量的场景。
@@ -20,21 +12,14 @@ Bitcask 是一种高效的键值存储模型，最初由 Riak 数据库系统的
 ### Bitcask 的基本原理
 
 1. **基于日志的写入**：
-
    - 所有的写操作都被追加（append）到一个日志文件中，而不会修改已经存在的数据。这种基于日志的写入机制保证了数据的持久性，并且由于是顺序写入，磁盘 I/O 操作非常高效。
-
 2. **键的内存索引**：
    - Bitcask 使用内存中的哈希表来保存每个键对应的数据的文件偏移量。每次读取操作都通过内存中的索引直接定位到存储在磁盘上的数据位置，然后读取数据。这使得读取操作非常快速。
 3. **只追加的文件**：
-
    - 数据只会追加到日志文件的末尾，旧的数据会保留在日志中。为了防止磁盘空间被这些旧数据占用，Bitcask 会定期进行压缩和合并（compaction），将活跃的数据重新写入新的日志文件中，释放无用的空间。
-
 4. **写入操作的高效性**：
-
    - 由于写入操作是顺序追加的，不涉及对现有数据的修改，Bitcask 的写入操作非常高效。这种模型特别适合 SSD 等顺序写入性能良好的存储设备。
-
 5. **数据恢复和启动速度**：
-
    - 当数据库启动时，Bitcask 会将磁盘上的数据文件逐一加载，并重建内存中的索引。由于索引只包含键和文件偏移量，这种恢复过程相对快速，特别是在数据量较大的情况下。
 
 ### 优点
@@ -54,32 +39,84 @@ Bitcask 是一种高效的键值存储模型，最初由 Riak 数据库系统的
 - **读多写少**：在读多写少的工作负载中，Bitcask 的性能表现尤其优异。
 - **高吞吐量需求**：需要快速写入和读取大量数据的场景，如缓存系统或日志存储。
 
-## 里面的 hintfile
+## 实现
 
-在 Bitcask 中，**Hint File** 是一种优化机制，用于加速数据库的启动和恢复过程。它是一个辅助文件，存储了有关主数据文件（通常是日志文件）中的关键元数据信息。
+### 数据文件存储格式
 
-### Hint File 的作用
+当数据落盘时，每条数据会被存储为
 
-1. **加速数据库启动**：
+![image](https://github.com/XmchxUp/picx-images-hosting/raw/master/20241011/image.6wqpoc5dft.webp)
 
-   - 当数据库启动时，Bitcask 需要构建内存中的索引，这通常需要扫描整个数据文件来提取每个键的偏移量。如果数据量大且文件多，这个过程可能非常耗时。
-   - Hint File 预先保存了每个键及其在数据文件中的位置偏移量，因此在数据库启动时，Bitcask 可以直接从 Hint File 中加载这些信息，而不必重新扫描所有数据文件，从而显著加快启动速度。
+crc 校验值：用于检测数据是否为修改
 
-2. **数据文件的元数据**：
+type 类型：数据的类型 (Normal/Deleted)
 
-   - Hint File 包含的数据通常包括键、键的大小、数据的偏移量、数据的大小以及时间戳等。这些信息可以帮助快速定位和读取数据，而无需逐行遍历整个数据文件。
+key/val 的大小 : 这里用变长存储 ，最大设置成 5bytes, 2^40 大小足够了  
+key/val 实际的数据
 
-3. **节省 I/O 操作**：
+这里没有用到论文中的提到的`timestamp：表示数据插入的时间`
 
-   - 通过使用 Hint File，Bitcask 可以减少启动时对磁盘的 I/O 操作，因为不需要从数据文件中逐个提取键的位置信息，而是直接从 Hint File 中读取预先保存的元数据。
+主要编码解码相关代码在`data/log_record.go`
 
-### Hint File 的创建和更新
+### KeyDirectory
 
-- **创建**：
-  - Hint File 通常是在日志文件写入的过程中，或在合并（compaction）操作之后创建。它会同步生成并与数据文件一同存储在磁盘上。
-- **更新**：
-  - 当数据文件发生变化（例如追加新的数据或进行合并）时，Hint File 也需要相应地更新，以确保它的内容与数据文件保持一致。
+主要是一个索引层，记录 key 和 datafile 中数据的映射(这里只需要记录 fileid, datafile 里对应的 record 大小，和 record 在 datafile 里的 offset)
 
-### 使用场景
+record 在索引中的记录格式：  
+![image](https://github.com/XmchxUp/picx-images-hosting/raw/master/20241013/image.2obih6ijrr.webp)
+
+整体视图  
+![image](https://XmchxUp.github.io/picx-images-hosting/20241013/image.86tmxc5ta3.webp)
+
+### DB 操作
+
+#### Get
+
+先根据 key 通过 KeyDirectory 索引获得到对应的在文件中的 record 相关信息  
+没找到的到直接返回，再通过 file_id 和 offset 读取 data，解析 data（会通过 CRC 判断数据是否被篡改），再通过 type 判断是否被删除，再获得对应的 value
+
+#### Put
+
+会向对应的 activefile 向入相应的 data，再更新索引。
+
+#### Delete
+
+删除也是一种 put，只不过 type 为 Deleted，通过 indexer 获得对应的 record，如果没有则直接返回，因为 indexer 中记录了所有 data，然后向 activefile 加入新 data,删除索引。
+
+#### Merge & Compaction
+
+##### Hint File
+
+在 Bitcask 中，**Hint File** 是一种优化机制，用于加速数据库的启动和恢复过程。它是一个辅助文件，存储了 KeyDirectory 中的 value。构建 KeyDirectory 时先从 Hint File 加载，避免大量的扫描加载旧文件。
 
 Hint File 非常适合在数据量大且重启频繁的场景中使用，它能够有效减少数据库的重启时间，提升系统的整体可用性。
+
+这里暴露一个 Merge 方法，让用户去按需生成 Hint File `merge.go`
+
+这里会创建一个新的 Database 在一个新的 merge 目录进行，将所有 data file 按最新到旧的顺序，即先处理最新的文件，来生成 Hint File。
+
+这里 Merge 时打开一个新的 Database 主要是为了不影响原先的 database 后续操作，比如 Merge 时还会有其它操作同时进行。同时 Merge 时可能会被中断，这里存储个文件来标示 Merge 是否完成。
+
+这里也会标示在 Merge 时未操作的 Data File ID，后续 Recory 时还需要加载后续的文件
+
+##### Recory
+
+DB 在打开时，需要构建 KeyDirectory，加载 Merge 原数据获得未 merge 的 Data File ID,是否完成，
+
+如果完成了，则可以删除原 Database 中的 old data file，将 merge 目录中的 data file 移到数据目录下。
+
+再从 non merge data file id 加载构建索引，也需要处理带有事务 ID 的 record。
+
+#### Transaction
+
+提供一个方法创建带有事务提交的 DB，执行 Commit 时，会让所有 data record 会带有当前事务 ID，存储到 Data file 中，完成后再写入一个标识 record(type 为 TxnFinished)，更新索引。
+
+## Res
+
+[https://riak.com/assets/bitcask-intro.pdf](https://riak.com/assets/bitcask-intro.pdf)
+
+[Bitcask - A Log-Structured fast KV store](https://arpitbhayani.me/blogs/bitcask/)
+
+[prologic/bitcask: 🔑 A high performance Key/Value store written in Go with a predictable read/write performance and high throughput. Uses a Bitcask on-disk layout (LSM+WAL) similar to Riak. - bitcask - Mills](https://git.mills.io/prologic/bitcask)
+
+[RoseDB Labs · GitHub](https://github.com/rosedblabs)

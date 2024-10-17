@@ -9,6 +9,7 @@ import { siteConfig } from "@/config/site";
 import MainLeftAside from "@/components/main-left";
 import MainRightAside from "@/components/main-right";
 import { Analytics } from "@vercel/analytics/react";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 export const metadata: Metadata = {
   title: siteConfig.name,
@@ -40,6 +41,7 @@ export default function RootLayout({
             </main>
             <SiteFooter />
             <Analytics />
+            <GoogleAnalytics gaId="G-N80PEBXDRQ" />
           </div>
         </BaseProvider>
       </body>

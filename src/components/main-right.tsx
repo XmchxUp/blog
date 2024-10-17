@@ -14,6 +14,7 @@ function MainRightAside() {
   const [recentComments, setRecentComments] = useState<RecentCommentData[]>([]);
   const [loadRecentCommentError, setLoadRecentCommentError] =
     useState<boolean>(false);
+  const [loadingComments, setLoadingComments] = useState<boolean>(true);
   const latestPosts = sortPosts(posts).slice(0, 5);
 
   useEffect(() => {
@@ -23,16 +24,22 @@ function MainRightAside() {
         count: 5,
         lang: navigator.language,
       });
-      console.log("=====", resp);
       if ("data" in resp) {
         setLoadRecentCommentError(false);
         setRecentComments(resp.data as RecentCommentData[]);
       } else {
         setLoadRecentCommentError(true);
       }
+      setLoadingComments(false);
     };
     fetchComments();
   }, []);
+
+  const customLoadingDiv = () => {
+    return (
+      <div className="animate-pulse rounded-md bg-primary/10 w-full h-4"></div>
+    );
+  };
 
   return (
     <aside className="order-1 col-span-1 hidden lg:block">
@@ -85,7 +92,11 @@ function MainRightAside() {
             </h3>
           </div>
           <div className="p-6 flex flex-col pt-2 gap-2">
-            {recentComments.length > 0 ? (
+            {loadingComments ? (
+              Array.from({ length: 5 }).map((_, index) => (
+                <div key={`loading-comment-${index}`}>{customLoadingDiv()}</div>
+              ))
+            ) : recentComments.length > 0 ? (
               recentComments.map((comment) => (
                 <div
                   className="flex flex-col w-full relative"
@@ -103,7 +114,7 @@ function MainRightAside() {
                   <span className="text-xs text-secondary-foreground">
                     {getDateAgoFormat(comment.time)}{" "}
                     <Link className="hover:underline" href={`/${comment.url}`}>
-                      {comment.nick || "unknow"}
+                      {comment.nick || "unknown"}
                     </Link>
                   </span>
                 </div>

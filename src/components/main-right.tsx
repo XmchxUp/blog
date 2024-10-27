@@ -15,7 +15,9 @@ function MainRightAside() {
   const [loadRecentCommentError, setLoadRecentCommentError] =
     useState<boolean>(false);
   const [loadingComments, setLoadingComments] = useState<boolean>(true);
-  const latestPosts = sortPosts(posts).slice(0, 5);
+  const latestPosts = sortPosts(posts)
+    .filter((p) => !p.draft)
+    .slice(0, 5);
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -62,25 +64,22 @@ function MainRightAside() {
             </h3>
           </div>
           <div className="p-6 flex flex-col pt-2 gap-2">
-            {latestPosts.map(
-              (post) =>
-                !post.draft && (
-                  <div
-                    className="flex flex-col w-full"
-                    key={`recent-articles-${post.slug}`}
-                  >
-                    <Link
-                      className="text-sm font-normal hover:underline"
-                      href={`/${post.slug}`}
-                    >
-                      {post.title}
-                    </Link>
-                    <span className="text-xs text-secondary-foreground">
-                      {getDateAgoFormat(post.date)}
-                    </span>
-                  </div>
-                )
-            )}
+            {latestPosts.map((post) => (
+              <div
+                className="flex flex-col w-full"
+                key={`recent-articles-${post.slug}`}
+              >
+                <Link
+                  className="text-sm font-normal hover:underline"
+                  href={`/${post.slug}`}
+                >
+                  {post.title}
+                </Link>
+                <span className="text-xs text-secondary-foreground">
+                  {getDateAgoFormat(post.date)}
+                </span>
+              </div>
+            ))}
           </div>
         </AsideCard>
 

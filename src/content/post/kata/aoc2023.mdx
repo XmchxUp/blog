@@ -11,10 +11,12 @@ tags: ["kata", "Algorithm", "aoc"]
 
 Enjoy
 
-### Day 14: Point of Incidence
+### Day 14: Parabolic Reflector Dish
 
 partI 用暴力模拟就行了。
+
 partII：需要循环移动 1000000000 次，暴力肯定慢，思路就是维护每次循环后的状态，找到第一次出现重复状态的位置，计算开始循环到结束的长度。这样只需要取余得到最后的状态就行。
+
 如：state: [1,2,3,4,5,6] 下一次循环的状态为 3 则有重复，需要排除掉 3 之前的状态，3,4,5,6 为一次循环，(N-2)%4 得到余数就代表循环中的每几个状态。
 
 ### Day 13: Point of Incidence

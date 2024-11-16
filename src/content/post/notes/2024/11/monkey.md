@@ -1,0 +1,102 @@
+---
+category: "Technology"
+date: "2024-11-16 12:00"
+title: "Monkey Interpreter & Compiler"
+tags: ["Compiler", "CS"]
+---
+
+> [Code](https://github.com/Ysoding/monkey-rust)
+
+## Interpreter
+
+### 写法优化
+
+一开始用 Box+dyn trait 来表示实现了 statement
+
+```rust
+pub struct Program {
+    pub statements: Vec<Box<dyn Statement>>,
+}
+```
+
+然后当想要向上转型成具体的类型时，就是需要使用 any + downcast_ref 去做判断，感觉有点不是很 Rustcaean，思考有没有别的办法
+
+```rust
+    #[test]
+    fn test_integer_literal_expression() {
+        let input = "5;";
+        let mut l = Lexer::new(input.to_string());
+        let mut p = Parser::new(&mut l);
+        let program = p.parse_program();
+        check_parser_errors(&p);
+
+        assert_eq!(
+            program.statements.len(),
+            1,
+            "program has not enough statements."
+        );
+
+        let stmt = program.statements[0]
+            .as_any()
+            .downcast_ref::<ExpressionStatement>()
+            .expect("Expected statement to be ExpressionStatement");
+
+        let ex = stmt
+            .expression
+            .as_ref()
+            .expect("Expression should not be None");
+        let literal = ex
+            .as_any()
+            .downcast_ref::<IntegerLiteral>()
+            .expect("Expression is not an Identifier");
+
+        assert_eq!(literal.value, 5, "Literal value mismatch");
+        assert_eq!(
+            literal.token_literal(),
+            "5",
+            "Literal token_literal mismatch"
+        );
+    }
+
+
+```
+
+是不是可以用泛型`Statement<T>`代替 dyn Statement? 或者用 Enum match pattern 代替类型判断
+
+后续就用了 Enum，稍微方便了点，顺带性能肯定比 Box+dyn trait 高。
+
+```rust
+pub enum Statement {
+    Let(LetStatement),
+    Return(ReturnStatement),
+    Expression(ExpressionStatement),
+}
+if let Statement::Expression(stmt) = &program.statements[0] {
+            let ex = stmt
+                .expression
+                .as_ref()
+                .expect("Expression should not be None");
+            if let Expression::IntegerLiteral(literal) = ex {
+                assert_eq!(literal.value, 5, "Literal value mismatch");
+                assert_eq!(
+                    literal.token_literal(),
+                    "5",
+                    "Literal token_literal mismatch"
+                );
+            } else {
+                panic!("Expected IntegerLiteral")
+            }
+        } else {
+            panic!("Expected ExpressionStatement")
+        }
+}
+```
+
+后续写 marco 时不知道咋写了，思维还是够 Rustcaean，只能又加上 as_any 先试试看能不能写下去，可能等后面有实力了再重构吧。
+
+### 编译 和 解释
+
+两则之间的界限很模糊。有些情况下更加模糊，比如某些编程语言的实现会解析源代码，构建 AST 并将其转换为字节码。在执行之前，虚拟机会即时将字节码编译为机器代码，而不是直接在  
+虚拟机中执行字节码指定的操作。这就是所谓的 JIT（Just in Time）解释器/编译器。
+
+## Compiler

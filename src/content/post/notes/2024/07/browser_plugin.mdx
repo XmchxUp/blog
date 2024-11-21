@@ -2,7 +2,7 @@
 category: "Technology"
 date: "2024-07-08 22:40"
 title: "浏览器插件开发"
-tags: ["Practice", "Frontend Development", "Usage"]
+tags: ["Practice", "Frontend Development"]
 ---
 
 对于`scripting.executeScript`的误解。当你调用`scripting.executeScript`并传递一个函数给它，那个函数会在页面的上下文中执行，而不是在 background script 的上下文中执行。因此，任何在该函数中对外部变量的修改（如`chato_data`）实际上并不会反映到 background script 的实际变量上。

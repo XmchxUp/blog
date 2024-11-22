@@ -5,7 +5,7 @@ title: "6.5840 Lab 3: Raft"
 tags: ["CS", "System", "Practice"]
 ---
 
-## Lab3 Raft
+# Lab3 Raft
 
 ### Part A Leader Election
 
@@ -281,10 +281,10 @@ Then the leader's logic can be something like:
 
 ### PartD log compaction
 
-![](https://github.com/OneSizeFitsQuorum/raft-thesis-zh_cn/blob/master/static/5_3.png)
+![](https://raw.githubusercontent.com/OneSizeFitsQuorum/raft-thesis-zh_cn/refs/heads/master/static/5_3.png)
 
- 发送 `InstallSnapshot`
+发送 `InstallSnapshot`
 
- 当领导者发现某个追随者的日志与自己有较大差异，即可以在发送AE时判断peer的PrevLogIndex<snapLastIdx
+当领导者发现某个追随者的日志与自己有较大差异，即可以在发送AE时判断peer的`PrevLogIndex  <  snapLastIdx`
 
-主要还是注意每次获得锁后，判断状态有没有改变如当前term，role。
+主要还是注意每次获得锁后，判断状态有没有改变如当前term，role

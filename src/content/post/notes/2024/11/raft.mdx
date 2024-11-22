@@ -216,3 +216,75 @@ Goroutine 9682 (running) created at:
 ```
 
 ### PartC persistence
+
+```
+(raft) ultraman in ~/Desktop/workspace/MIT6.824/src/raft on lab3_2 ● λ VERBOSE=1 python dtest.py -p 8 -r 3C -n 100
+Running with the race detector
+
+┏━━━━━━┳━━━━━━━━┳━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Test ┃ Failed ┃ Total ┃          Time ┃
+┡━━━━━━╇━━━━━━━━╇━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ 3C   │      0 │   100 │ 134.67 ± 4.86 │
+```
+
+持久化：只需要对currentTerm/votedFor/log 保存
+
+之前回溯follower的nextIndex，是一个一个的回退，等待下个周期继续。
+
+这里有优化方式：  
+核心逻辑是在AE response中加入 follower自身的log信息。
+
+```go
+  ConflictIndex int
+  ConflictTerm  int
+```
+
+如果follower日志过短，设置ConflictIndex为len(log)，ConflictTerm设置个标识INVALID
+
+否则，ConflictTerm为当前冲突的Term, ConflictIndex设置成此Term的第一个log的index
+
+```go
+	// Reply false if log doesn’t contain an entry at prevLogIndex
+	// whose term matches prevLogTerm (§5.3)
+	if args.PrevLogIndex >= len(rf.log) {
+		reply.ConfilictIndex = len(rf.log)
+		reply.ConfilictTerm = InvalidTerm
+		Debug(dWarn, rf.me, rf.currentTerm, "Current peer doesn't contain prevLogIndex(%d)", args.PrevLogIndex)
+		return
+	}
+	if rf.log[args.PrevLogIndex].Term != args.PrevLogTerm {
+		reply.ConfilictTerm = rf.log[args.PrevLogIndex].Term
+		reply.ConfilictIndex = rf.firstLogIndexInTerm(reply.ConfilictTerm)
+		Debug(dWarn, rf.me, rf.currentTerm, "Current peer contain prevLogIndex(%d) log didn't match(%d)", args.PrevLogIndex, args.PrevLogTerm)
+		return
+	}
+```
+
+> In practice, we doubt this optimization is necessary, since failures happen infrequently and it is unlikely that there will be many inconsistent entries.
+
+```sh
+You will probably need the optimization that backs up nextIndex by more than one entry at a time. Look at the [extended Raft paper](http://nil.csail.mit.edu/6.5840/2024/papers/raft-extended.pdf) starting at the bottom of page 7 and top of page 8 (marked by a gray line). The paper is vague about the details; you will need to fill in the gaps. One possibility is to have a rejection message include:
+
+    XTerm:  term in the conflicting entry (if any)
+    XIndex: index of first entry with that term (if any)
+    XLen:   log length
+
+Then the leader's logic can be something like:
+
+  Case 1: leader doesn't have XTerm:
+    nextIndex = XIndex
+  Case 2: leader has XTerm:
+    nextIndex = leader's last entry for XTerm
+  Case 3: follower's log is too short:
+    nextIndex = XLen
+```
+
+### PartD log compaction
+
+![](https://github.com/OneSizeFitsQuorum/raft-thesis-zh_cn/blob/master/static/5_3.png)
+
+ 发送 `InstallSnapshot`
+
+ 当领导者发现某个追随者的日志与自己有较大差异，即可以在发送AE时判断peer的PrevLogIndex<snapLastIdx
+
+主要还是注意每次获得锁后，判断状态有没有改变如当前term，role。

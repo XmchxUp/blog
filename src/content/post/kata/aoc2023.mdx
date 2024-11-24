@@ -11,6 +11,22 @@ tags: ["Kata", "Algorithm", "AOC"]
 
 Enjoy
 
+### Day 17: Clumsy Crucible
+
+BFS 只不过这里使用 priority queue，每次先走 heat loss 最小的点
+
+### Day 16: The Floor Will Be Lava
+
+DFS 遍历模拟 queue + set 标记是否走过
+
+主要是理解镜子反射 90 度 `/` 当向上遇到则变向右，当向下遇到则变成向左
+
+可以存储元素为(r,c,dr,dc)，这样可以判断当前的坐标和方向
+
+part1: 从左上角出发，向右
+
+part2: 从任意位置出发，朝向的方向需要判断，如在左边出发则向右，在上边发现向下。
+
 ### Day 15: Lens Library
 
 模拟

@@ -11,6 +11,71 @@ tags: ["Kata", "Algorithm", "AOC"]
 
 Enjoy
 
+### Day 20: Pulse Propagation
+
+part1: 模拟
+
+part2: 在我的输入里`rx`只有一个 `hb` 输入，`hb`又是一个 Conjunction。所以继续看下`hb`的所有输入，当都为 High pluse 时才输出 Low pluse。
+
+最后通过记录所有输入到 hb 的 High pluse 的按钮次数，取最小公倍数即让所有端在同一按钮次数下通 High pluse。
+
+### Day 19: Aplenty
+
+每个 workflow 对应一个 name, 和多个 rule, 一个 fallback name
+
+rule 就是(variable, operation, value, name)
+
+```rust
+#[derive(Default)]
+pub struct Aoc2023_19 {
+    workflows: HashMap<String, (Vec<(char, char, i32, String)>, String)>,
+    values: Vec<HashMap<char, i32>>,
+}
+```
+
+part2 就是使用对 values 使用 Range `ranges: HashMap<char, (i32, i32)>`
+
+(0, 4000), 每次判断都一边界去执行，找出 true_range，和 false_range
+
+true_range 继续执行下一个，false_range 如果当前 rule 都为 false 则执行更新成 false_range 执行 fallback
+
+```rust
+for (key, cmp, n, target) in rules {
+                    let (lo, hi) = curret_ranges.get(key).unwrap();
+                    let mut true_range = (0, 0);
+                    let mut false_range = (0, 0);
+                    if *cmp == '<' {
+                        true_range = (*lo, *n - 1);
+                        false_range = (*n, *hi);
+                    } else if *cmp == '>' {
+                        true_range = (*n + 1, *hi);
+                        false_range = (*lo, *n);
+                    } else {
+                        panic!("error operator");
+                    }
+
+                    if true_range.0 <= true_range.1 {
+                        let mut copy = curret_ranges.clone();
+                        copy.insert(*key, true_range);
+                        total += self.count(copy, target);
+                    }
+
+                    if false_range.0 <= false_range.1 {
+                        // 更新当前ranges为false_range
+                        let mut copy = curret_ranges.clone();
+                        copy.insert(*key, false_range);
+                        curret_ranges = copy;
+                    } else {
+                        //如果都没有match则走fallback
+                        need_fallback = false;
+                        break;
+                    }
+                }
+                if need_fallback {
+                    total += self.count(curret_ranges, fallback)
+                }
+```
+
 ### Day 18: Lavaduct Lagoon
 
 [Shoelace Formula WIKI](https://en.wikipedia.org/wiki/Shoelace_formula#Other_formulas_2)

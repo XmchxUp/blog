@@ -2,9 +2,9 @@ import { posts } from "#site/content";
 import PostsByYear from "@/components/posts-by-year";
 
 interface CategoryPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 async function getPostsFromParams(params: CategoryPageProps["params"]) {
@@ -12,7 +12,8 @@ async function getPostsFromParams(params: CategoryPageProps["params"]) {
   return posts.filter((post) => !post.draft && post.category == slug);
 }
 
-async function CategoryPage({ params }: CategoryPageProps) {
+async function CategoryPage(props: CategoryPageProps) {
+  const params = await props.params;
   const curPosts = await getPostsFromParams(params);
 
   return <PostsByYear title={`Category: ${params.slug}`} posts={curPosts} />;

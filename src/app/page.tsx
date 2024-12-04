@@ -6,12 +6,13 @@ import { CustomPagination } from "@/components/custom-pagination";
 const POSTS_PER_PAGE = 5;
 
 interface HomePageProps {
-  searchParams: {
+  searchParams: Promise<{
     page?: string;
-  };
+  }>;
 }
 
-export default function Home({ searchParams }: HomePageProps) {
+export default async function Home(props: HomePageProps) {
+  const searchParams = await props.searchParams;
   const currentPage = Number(searchParams?.page) || 1;
   const allSortedPosts = sortPosts(posts.filter((post) => !post.draft));
   const displayPosts = allSortedPosts.slice(

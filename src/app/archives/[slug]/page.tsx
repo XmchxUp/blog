@@ -1,13 +1,16 @@
 import { posts } from "#site/content";
 import PostsByYear from "@/components/posts-by-year";
 
-interface ArchivePageProps {
-  params: Promise<{
-    slug: string;
-  }>;
+interface Params {
+
+  slug: string;
 }
 
-async function getPostsFromParams(params: ArchivePageProps["params"]) {
+interface ArchivePageProps {
+  params: Promise<Params>;
+}
+
+async function getPostsFromParams(params: Params) {
   return posts.filter(
     (post) =>
       !post.draft && String(new Date(post.date).getFullYear()) === params.slug

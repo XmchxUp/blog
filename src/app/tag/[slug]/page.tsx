@@ -1,13 +1,15 @@
 import { posts } from "#site/content";
 import PostsByYear from "@/components/posts-by-year";
 
-interface TagPageProps {
-  params: Promise<{
-    slug: string;
-  }>;
+interface Params {
+  slug: string;
 }
 
-async function getPostsFromParams(params: TagPageProps["params"]) {
+interface TagPageProps {
+  params: Promise<Params>;
+}
+
+async function getPostsFromParams(params: Params) {
   const slug = decodeURIComponent(params.slug);
   return posts.filter((post) => !post.draft && post.tags?.includes(slug));
 }

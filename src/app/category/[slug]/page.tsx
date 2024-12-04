@@ -7,14 +7,13 @@ interface CategoryPageProps {
   }>;
 }
 
-async function getPostsFromParams(params: CategoryPageProps["params"]) {
-  const slug = decodeURIComponent(params.slug);
+async function getPostsFromSlug(slug: string) {
   return posts.filter((post) => !post.draft && post.category == slug);
 }
 
 async function CategoryPage(props: CategoryPageProps) {
   const params = await props.params;
-  const curPosts = await getPostsFromParams(params);
+  const curPosts = await getPostsFromSlug(params.slug);
 
   return <PostsByYear title={`Category: ${params.slug}`} posts={curPosts} />;
 }

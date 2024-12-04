@@ -2,9 +2,9 @@ import { posts } from "#site/content";
 import PostsByYear from "@/components/posts-by-year";
 
 interface ArchivePageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 async function getPostsFromParams(params: ArchivePageProps["params"]) {
@@ -14,7 +14,8 @@ async function getPostsFromParams(params: ArchivePageProps["params"]) {
   );
 }
 
-async function ArchivePage({ params }: ArchivePageProps) {
+async function ArchivePage(props: ArchivePageProps) {
+  const params = await props.params;
   const curPosts = await getPostsFromParams(params);
 
   if (params.slug) {

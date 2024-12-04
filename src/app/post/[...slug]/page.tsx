@@ -8,9 +8,8 @@ import { Metadata } from "next";
 import { siteConfig } from "@/config/site";
 import CustomWalineComment from "@/components/comment";
 
-export async function generateMetadata({
-  params,
-}: PostPageProps): Promise<Metadata> {
+export async function generateMetadata(props: PostPageProps): Promise<Metadata> {
+  const params = await props.params;
   const post = await getPostFromParams(params);
 
   if (!post) {
@@ -54,9 +53,9 @@ export async function generateStaticParams(): Promise<
 }
 
 interface PostPageProps {
-  params: {
+  params: Promise<{
     slug: string[];
-  };
+  }>;
 }
 
 async function getPostFromParams(params: PostPageProps["params"]) {
@@ -65,7 +64,8 @@ async function getPostFromParams(params: PostPageProps["params"]) {
   return post;
 }
 
-async function PostPage({ params }: PostPageProps) {
+async function PostPage(props: PostPageProps) {
+  const params = await props.params;
   const post = await getPostFromParams(params);
   if (
     !post ||

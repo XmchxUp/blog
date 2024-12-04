@@ -10,6 +10,7 @@ import MainLeftAside from "@/components/main-left";
 import MainRightAside from "@/components/main-right";
 import { Analytics } from "@vercel/analytics/react";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 export const metadata: Metadata = {
   title: siteConfig.name,
@@ -42,6 +43,7 @@ export default function RootLayout({
             <SiteFooter />
             <Analytics />
             <GoogleAnalytics gaId="G-N80PEBXDRQ" />
+            <SpeedInsights />
           </div>
         </BaseProvider>
       </body>

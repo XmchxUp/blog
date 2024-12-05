@@ -7,6 +7,17 @@ tags: ["Kata", "Algorithm", "AOC"]
 
 > https://github.com/XmchxUp/aoc
 
+### Day 5: Print Queue
+
+partI: 暴力的每次从后往前检测是否符合Rule
+
+```rust
+    rules: HashMap<u32, HashSet<u32>>,
+    seqs: Vec<Vec<u32>>,
+```
+
+partII: 排序，如 rule `a|b` 表示a < b那么使用这个排序规则，最后在判断是否符合rule。
+
 ### Day 4: Ceres Search
 
 partI: DFS

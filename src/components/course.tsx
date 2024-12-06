@@ -1,3 +1,4 @@
+import Image from "next/image";
 import "./course.css";
 
 function Course() {
@@ -6,7 +7,7 @@ function Course() {
       <tbody>
         <tr>
           <td className="piccol">
-            <img src="https://github.com/XmchxUp/picx-images-hosting/raw/master/20240909/image.lvogtn2zo.webp" />
+            <Image src="https://github.com/XmchxUp/picx-images-hosting/raw/master/20240909/image.lvogtn2zo.webp" alt={""} />
           </td>
           <td className="textcol">
             <p>
@@ -16,10 +17,9 @@ function Course() {
                 </a>
                 Distributed Systems Engineering
               </b>
-              <img
+              <Image
                 className="inline-image"
-                src="https://skillicons.dev/icons?i=go&theme=light"
-              />
+                src="https://skillicons.dev/icons?i=go&theme=light" alt={""} />
             </p>
             <p>
               Raft/KV-store
@@ -31,7 +31,7 @@ function Course() {
         </tr>
         <tr>
           <td className="piccol">
-            <img src="https://github.com/XmchxUp/picx-images-hosting/raw/master/20240909/image.4qr9sxcsyu.webp" />
+            <Image src="https://github.com/XmchxUp/picx-images-hosting/raw/master/20240909/image.4qr9sxcsyu.webp" alt={""} />
           </td>
           <td className="textcol">
             <p>
@@ -41,10 +41,9 @@ function Course() {
                 </a>
                 Introduction to Database System
               </b>
-              <img
+              <Image
                 className="inline-image"
-                src="https://skillicons.dev/icons?i=cpp&theme=light"
-              />
+                src="https://skillicons.dev/icons?i=cpp&theme=light" alt={""} />
             </p>
             <p>
               数据库底层实现，Buffer Pool Manager (内存管理), B Plus Tree
@@ -58,7 +57,7 @@ function Course() {
         </tr>
         <tr>
           <td className="piccol">
-            <img src="https://github.com/XmchxUp/picx-images-hosting/raw/master/20240909/image.8ojn9j60m2.webp" />
+            <Image src="https://github.com/XmchxUp/picx-images-hosting/raw/master/20240909/image.8ojn9j60m2.webp" alt={""} />
           </td>
           <td className="textcol">
             <p>
@@ -68,10 +67,9 @@ function Course() {
                 </a>
                 Operating System Engineering
               </b>
-              <img
+              <Image
                 className="inline-image"
-                src="https://skillicons.dev/icons?i=c&theme=light"
-              />
+                src="https://skillicons.dev/icons?i=c&theme=light" alt={""} />
             </p>
             <p>
               xv6 OS，后面可以用Rust重写一个。
@@ -83,7 +81,7 @@ function Course() {
         </tr>
         <tr>
           <td className="piccol">
-            <img src="" />
+            <Image src="" alt={""} />
           </td>
           <td className="textcol">
             <p>
@@ -93,10 +91,9 @@ function Course() {
                 </a>
                 Software Engineering
               </b>
-              <img
+              <Image
                 className="inline-image"
-                src="https://skillicons.dev/icons?i=ruby&theme=light"
-              />
+                src="https://skillicons.dev/icons?i=ruby&theme=light" alt={""} />
             </p>
             <p>
               Engineering Software as a Service
@@ -108,7 +105,7 @@ function Course() {
         </tr>
         <tr>
           <td className="piccol">
-            <img src="https://github.com/XmchxUp/picx-images-hosting/raw/master/20240909/image.b8unov1jm.webp" />
+            <Image src="https://github.com/XmchxUp/picx-images-hosting/raw/master/20240909/image.b8unov1jm.webp" alt={""} />
           </td>
           <td className="textcol">
             <p>
@@ -116,10 +113,9 @@ function Course() {
                 <a href="https://web.mit.edu/6.031/www/sp22/">MIT 6.031:</a>
                 Software Construction
               </b>
-              <img
+              <Image
                 className="inline-image"
-                src="https://skillicons.dev/icons?i=ts,java&theme=light"
-              />
+                src="https://skillicons.dev/icons?i=ts,java&theme=light" alt={""} />
             </p>
             <p>
               一些规范
@@ -139,10 +135,9 @@ function Course() {
                 </a>
                 Programming Abstractions
               </b>
-              <img
+              <Image
                 className="inline-image"
-                src="https://skillicons.dev/icons?i=cpp&theme=light"
-              />
+                src="https://skillicons.dev/icons?i=cpp&theme=light" alt={""} />
             </p>
             <p>
               <a href="https://github.com/cs-learning-every-day/CS106B">
@@ -153,7 +148,7 @@ function Course() {
         </tr>
         <tr>
           <td className="piccol">
-            <img src="https://github.com/XmchxUp/picx-images-hosting/raw/master/20240909/image.92q30hlr2g.webp" />
+            <Image src="https://github.com/XmchxUp/picx-images-hosting/raw/master/20240909/image.92q30hlr2g.webp" alt={""} />
           </td>
           <td className="textcol">
             <p>
@@ -161,10 +156,9 @@ function Course() {
                 <a href="https://py.mit.edu/fall22">MIT 6.101:</a>
                 Fundamentals of Programming
               </b>
-              <img
+              <Image
                 className="inline-image"
-                src="https://skillicons.dev/icons?i=python&theme=light"
-              />
+                src="https://skillicons.dev/icons?i=python&theme=light" alt={""} />
             </p>
             <p>
               Audio Processing/Image Processing/Bacon
@@ -178,7 +172,7 @@ function Course() {
         </tr>
         <tr>
           <td className="piccol">
-            <img src="https://github.com/XmchxUp/picx-images-hosting/raw/master/20240526/image.39l0jt95n8.png" />
+            <Image src="https://github.com/XmchxUp/picx-images-hosting/raw/master/20240526/image.39l0jt95n8.png" alt={""} />
           </td>
           <td className="textcol">
             <p>
@@ -188,10 +182,9 @@ function Course() {
                 </a>
                 Great Ideas in Computer Architecture (Machine Structures)
               </b>
-              <img
+              <Image
                 className="inline-image"
-                src="https://skillicons.dev/icons?i=c&theme=light"
-              />
+                src="https://skillicons.dev/icons?i=c&theme=light" alt={""} />
             </p>
             <p>
               编写Risc-V汇编代码，搭建五级流水线CPU，使用OpenMP, SIMD
@@ -204,7 +197,7 @@ function Course() {
         </tr>
         <tr>
           <td className="piccol">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPB-sGyH98jQPTOyV99JgqJHJL4qhFNHfLvd5ZG2rS6w&s" />
+            <Image src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPB-sGyH98jQPTOyV99JgqJHJL4qhFNHfLvd5ZG2rS6w&s" alt={""} />
           </td>
           <td className="textcol">
             <p>
@@ -214,10 +207,9 @@ function Course() {
                 </a>
                 Standard C++ Programming
               </b>
-              <img
+              <Image
                 className="inline-image"
-                src="https://skillicons.dev/icons?i=cpp&theme=light"
-              />
+                src="https://skillicons.dev/icons?i=cpp&theme=light" alt={""} />
             </p>
             <p>
               现代C++基础，两个项目一个有关Wiki BFS算法应用/手写STL HashMap。
@@ -229,7 +221,7 @@ function Course() {
         </tr>
         <tr>
           <td className="piccol">
-            <img src="https://sp21.datastructur.es/assets/img/favicon.ico" />
+            <Image src="https://sp21.datastructur.es/assets/Image/favicon.ico" alt={""} />
           </td>
           <td className="textcol">
             <p>
@@ -237,10 +229,9 @@ function Course() {
                 <a href="https://sp24.datastructur.es/">CS 61B:</a>
                 Data Structures and Algorithms
               </b>
-              <img
+              <Image
                 className="inline-image"
-                src="https://skillicons.dev/icons?i=java,idea&theme=light"
-              />
+                src="https://skillicons.dev/icons?i=java,idea&theme=light" alt={""} />
             </p>
             <p>
               运用数据结构和算法解决实际问题，三个千行项目实现。
@@ -252,7 +243,7 @@ function Course() {
         </tr>
         <tr>
           <td className="piccol">
-            <img src="https://reberhardt.com/favicon.ico" />
+            <Image src="https://reberhardt.com/favicon.ico" alt={""} />
           </td>
           <td className="textcol">
             <p>
@@ -262,10 +253,9 @@ function Course() {
                 </a>
                 Safety in Systems Programming
               </b>
-              <img
+              <Image
                 className="inline-image"
-                src="https://skillicons.dev/icons?i=rust&theme=light"
-              />
+                src="https://skillicons.dev/icons?i=rust&theme=light" alt={""} />
             </p>
             <p>
               用 Rust 实现一个类似于 GDB 的 debugger/实现一个负载均衡器。
@@ -277,7 +267,7 @@ function Course() {
         </tr>
         <tr>
           <td className="piccol">
-            <img src="https://cdn.jsdelivr.net/gh/XmchxUp/cloudimg@master/20240216/image.4nbgc50rtog0.png" />
+            <Image src="https://cdn.jsdelivr.net/gh/XmchxUp/cloudImage@master/20240216/image.4nbgc50rtog0.png" alt={""} />
           </td>
           <td className="textcol">
             <p>
@@ -285,10 +275,9 @@ function Course() {
                 <a href="https://cs144.github.io/">CS 144:</a>
                 Introduction to Computer Networking,
               </b>
-              <img
+              <Image
                 className="inline-image"
-                src="https://skillicons.dev/icons?i=cpp,linux&theme=light"
-              />
+                src="https://skillicons.dev/icons?i=cpp,linux&theme=light" alt={""} />
             </p>
             <p>
               用 C++ 循序渐进地搭建出整个 TCP/IP 协议栈，IP 路由以及 ARP 协议。
@@ -300,7 +289,7 @@ function Course() {
         </tr>
         <tr>
           <td className="piccol">
-            <img src="http://csapp.cs.cmu.edu/3e/images/csapp3e-cover.jpg" />
+            <Image src="http://csapp.cs.cmu.edu/3e/images/csapp3e-cover.jpg" alt={""} />
           </td>
           <td className="textcol">
             <p>
@@ -309,10 +298,9 @@ function Course() {
                 Computer Systems: A Programmer&apos;s Perspective, 3/E
                 (CS:APP3e)
               </b>
-              <img
+              <Image
                 className="inline-image"
-                src="https://skillicons.dev/icons?i=c,linux&theme=light"
-              />
+                src="https://skillicons.dev/icons?i=c,linux&theme=light" alt={""} />
             </p>
             <p>
               系统入门课，课程内容覆盖了汇编语言、体系结构、操作系统、编译链接、并行、网络等，兼具深度和广度。
@@ -324,7 +312,7 @@ function Course() {
         </tr>
         <tr>
           <td className="piccol">
-            <img src="https://cs.brown.edu/courses/csci0300/2023/images/logo.png" />
+            <Image src="https://cs.brown.edu/courses/csci0300/2023/images/logo.png" alt={""} />
           </td>
           <td className="textcol">
             <p>
@@ -334,10 +322,9 @@ function Course() {
                 </a>
                 Fundamentals of Computer Systems
               </b>
-              <img
+              <Image
                 className="inline-image"
-                src="https://skillicons.dev/icons?i=cpp,c,rust&theme=light"
-              />
+                src="https://skillicons.dev/icons?i=cpp,c,rust&theme=light" alt={""} />
             </p>
             <p>
               系统入门课，Project有 Snake、Dmalloc、Caching
@@ -351,7 +338,7 @@ function Course() {
         </tr>
         <tr>
           <td className="piccol">
-            <img src="https://static.wixstatic.com/media/44046b_387f62dae530480dac9b1fa8f731bebf~mv2.png/v1/fill/w_415,h_144,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/44046b_387f62dae530480dac9b1fa8f731bebf~mv2.png" />
+            <Image src="https://static.wixstatic.com/media/44046b_387f62dae530480dac9b1fa8f731bebf~mv2.png/v1/fill/w_415,h_144,al_c,q_85,usm_0.66_1.00_0.01,enc_auto/44046b_387f62dae530480dac9b1fa8f731bebf~mv2.png" alt={""} />
           </td>
           <td className="textcol">
             <p>
@@ -359,10 +346,9 @@ function Course() {
                 <a href="https://www.nand2tetris.org/">From Nand to Tetris</a>
                 Building a Modern Computer From First Principles
               </b>
-              <img
+              <Image
                 className="inline-image"
-                src="https://skillicons.dev/icons?i=go&theme=light"
-              />
+                src="https://skillicons.dev/icons?i=go&theme=light" alt={""} />
             </p>
             <p>
               基础课程，从硬件到软件，0到1的世界，用与非门构造出逻辑电路，Assembler，VM，PL，编译器，OS。
@@ -374,7 +360,7 @@ function Course() {
         </tr>
         <tr>
           <td className="piccol">
-            <img src="https://d3njjcbhbojbot.cloudfront.net/api/utilities/v1/imageproxy/https://coursera-university-assets.s3.amazonaws.com/8c/ff2f50afdf11e5ae9d8158e68cbd96/UW_square_180x180.png?auto=format%2Ccompress&dpr=2&w=28&h=28" />
+            <Image src="https://d3njjcbhbojbot.cloudfront.net/api/utilities/v1/imageproxy/https://coursera-university-assets.s3.amazonaws.com/8c/ff2f50afdf11e5ae9d8158e68cbd96/UW_square_180x180.png?auto=format%2Ccompress&dpr=2&w=28&h=28" alt={""} />
           </td>
           <td className="textcol">
             <p>
@@ -384,10 +370,9 @@ function Course() {
                 </a>
                 (A/B/C) by UW
               </b>
-              <img
+              <Image
                 className="inline-image"
-                src="https://skillicons.dev/icons?i=ruby&theme=light"
-              />
+                src="https://skillicons.dev/icons?i=ruby&theme=light" alt={""} />
             </p>
             <p>
               多种编程范式入门，SML、Racket、Ruby。
@@ -399,7 +384,7 @@ function Course() {
         </tr>
         <tr>
           <td className="piccol">
-            <img src="https://www.cse.msu.edu/~cse251/images/course.png" />
+            <Image src="https://www.cse.msu.edu/~cse251/images/course.png" alt={""} />
           </td>
           <td className="textcol">
             <p>
@@ -408,10 +393,9 @@ function Course() {
                   CSE 251 Programming in C
                 </a>
               </b>
-              <img
+              <Image
                 className="inline-image"
-                src="https://skillicons.dev/icons?i=c&theme=light"
-              />
+                src="https://skillicons.dev/icons?i=c&theme=light" alt={""} />
             </p>
             <p>
               C语言入门课程。
@@ -423,7 +407,7 @@ function Course() {
         </tr>
         <tr>
           <td className="piccol">
-            <img src="https://missing.csail.mit.edu/favicon-32x32.png" />
+            <Image src="https://missing.csail.mit.edu/favicon-32x32.png" alt={""} />
           </td>
           <td className="textcol">
             <p>
@@ -432,10 +416,9 @@ function Course() {
                   MIT-Missing-Semester
                 </a>
               </b>
-              <img
+              <Image
                 className="inline-image"
-                src="https://skillicons.dev/icons?i=bash,vim,git,linux&theme=light"
-              />
+                src="https://skillicons.dev/icons?i=bash,vim,git,linux&theme=light" alt={""} />
             </p>
             <p>
               工具课程，有很多需要熟练掌握的，如Vim、Git、Grep、tmux、Shell配置等。
@@ -447,7 +430,7 @@ function Course() {
         </tr>
         <tr>
           <td className="piccol">
-            <img src="https://cs61a.org/assets/images/logo.png" />
+            <Image src="https://cs61a.org/assets/images/logo.png" alt={""} />
           </td>
           <td className="textcol">
             <p>
@@ -455,10 +438,9 @@ function Course() {
                 <a href="https://cs61a.org/">CS 61A:</a> - Structure and
                 Interpretation of Computer Programs
               </b>
-              <img
+              <Image
                 className="inline-image"
-                src="https://skillicons.dev/icons?i=python&theme=light"
-              />
+                src="https://skillicons.dev/icons?i=python&theme=light" alt={""} />
             </p>
             <p>
               Python 版的

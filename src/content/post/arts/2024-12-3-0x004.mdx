@@ -1,0 +1,178 @@
+---
+author: "韩立"
+title: "2024-12-06 周记 0x004"
+date: "2024-12-06"
+description: "weekely"
+category: "Life"
+tags: ["weekly"]
+---
+
+### Share
+
+2024年又快过去了，上篇周记还是在今年年初，后面没有继续更新，主要有两点：
+
+1. 被裁员
+2. 爷爷奶奶相继去世
+
+裁员当天和父亲通知我奶奶可能快不行了，相差可能不到20分钟。
+
+早上正常到公司，后续leader拉着我跟我交谈，通知裁员并问我有没有想问的，我说没有，说了下对做的东西赚不钱的看法，出来后不久就收到父亲打来的电话。
+
+因此对裁员没有什么感受，内心全是奶奶快不行的消息，从通知到办离职可能就2个小时，主要还是有相关人上午不在没法签字，下午会过来。
+
+我肯定是急切的相回到老家，就沟通找人代签下，所有东西搞好，离开公司后，本来打算做飞机的，但是没有直飞到老家的，十八县小城市，继续打电脑问下详细情况，脑出血，明天到就行。
+
+就只能先买最早出发的火车了，高铁都没有直达换乘和等待时间都跟火车差不多。
+
+> 从出生到22岁一直都是在宁波生活，对宁波和老家都没有什么感觉，回老家也只有每年一次的过年。
+
+在农村基本上就是火化+土葬，先是身体从医院移到屋里，靠着氧气罐，持续一段时间身体还没有变冷，还有温度，还没死，但是什么醒不过来。
+
+葬礼的期间，有所谓的“丐帮”人不断过来乞讨，有点恶心，主要是跟钱不到位，人属实有点多，陆陆续续感觉得有60+人，有的还唱曲唱起来了，属实被恶心到了。
+
+可能持续了六天，天天吃席，亲戚也是第一次办这种事都很忙，累。
+
+到真正下葬的那一天，起码得有100人往上了，以前人真多啊，关系网复杂，我奶奶就生了八个(我父亲最大， 我有三个姑姑，两个叔叔)，养不起送走了一个最小的，我爷爷家之前是地主被打倒了。
+
+> 有两个姑姑的命属实也有点不好：一个十几年前瘫痪了（没办法说话，走路困难，生活基本不能自理, 虽然没有多久家里开始变得富裕起来，她的两个儿子可能也算千万富翁了），一个老公也在十几年前意外去世。
+
+爷爷由于前年得了癌症，加上奶奶先去世，身体恶化的快，没过几个月也走了。
+
+期间面试只有三家过了，约面的可能不到六家，没准备八股：
+
+> 之前在学校找工作也是难啊，本来想在实习的那家转正的，但是做的内容时在是接受不了(天天对着需求搞爬虫，金融公司)，一个多月后就走了，后面很难找，主要还是由于学历不好，水平不行，参加秋招，春招基本上没有面试。
+
+- 一家做低代码，当时也是葬礼刚回来，问我八股基本上都不知道，只有一个感觉，一问具体名词就不知道了。
+
+- 一家在北京，搞网关开发的，面试到拿offer也就几多小时，由于是刚创业开发就几个人，所以直接是技术leader面的，问的我可能相对知道的多点，比较顺利就一面直接过了。
+
+- 一家外企外派，搞云基础设施的，最后去了这家。
+
+持续一个多月的找工作结束(2月~3月)，上家公司也是没几个月员工基本上全被开了，包含(HR/账务/开发/销售/产品经理)。
+
+后续继续写周记，坚持学习锻炼。
+
+### Algorithm
+
+在写advent of code 2024 移至相关[文章](https://xmchx.vercel.app/tag/aoc)。
+
+### Review
+
+### Tip
+
+#### 升级Next.js 15
+
+升级了下我的博客，Next.js 15用它提供的工具，自动升级，有个坑就是，本地 `run dev`没有问题都是正常的，在build时候工具改变的代码写法就有问题了，笑了。
+
+[Dynamic Routes](https://nextjs.org/docs/app/building-your-application/routing/dynamic-routes#example)
+
+Lighthouse测出来数据不错，Performance都有100%。
+
+#### Kubelet 给pod配置DNS逻辑
+
+GetPodDNS 行为：
+- 如果 Pod 的 DNS 类型是 podDNSCluster 且 clusterDNS 不为空，则使用 clusterDNS。
+
+- 否则，回退到 podDNSHost 逻辑：
+  - 如果 ResolverConfig 为空，则默认使用 127.0.0.1。
+  - 否则，使用指定的 ResolverConfig。
+
+在KubeEdge中，由于不需要CNI，默认期望edge节点上的pod都使用hostDNS，edge中的kubelet被包装成edged，直接给kubelet启动时指定ResolverConfig为`/etc/resolv.conf`，这样也不需要改变pod的DNSPolicy了(default: DNSClusterFirst)。
+
+```go
+k8s.io/kubernetes/pkg/kubelet/network/dns/dns.go:303
+
+// IsHostNetworkPod returns whether the host networking requested for the given Pod.
+// Pod must not be nil.
+func IsHostNetworkPod(pod *v1.Pod) bool {
+      return pod.Spec.HostNetwork
+}
+
+func getPodDNSType(pod *v1.Pod) (podDNSType, error) {
+      dnsPolicy := pod.Spec.DNSPolicy
+      switch dnsPolicy {
+      case v1.DNSNone:
+            return podDNSNone, nil
+      case v1.DNSClusterFirstWithHostNet:
+            return podDNSCluster, nil
+      case v1.DNSClusterFirst:
+            if !kubecontainer.IsHostNetworkPod(pod) {
+                  return podDNSCluster, nil
+            }
+            // Fallback to DNSDefault for pod on hostnetwork.
+            fallthrough
+      case v1.DNSDefault:
+            return podDNSHost, nil
+      }
+      // This should not happen as kube-apiserver should have rejected
+      // invalid dnsPolicy.
+      return podDNSCluster, fmt.Errorf("invalid DNSPolicy=%v", dnsPolicy)
+}
+
+
+// GetPodDNS returns DNS settings for the pod.
+func (c *Configurer) GetPodDNS(pod *v1.Pod) (*runtimeapi.DNSConfig, error) {
+      dnsConfig, err := c.getHostDNSConfig(c.ResolverConfig)
+      if err != nil {
+            return nil, err
+      }
+
+      dnsType, err := getPodDNSType(pod)
+      if err != nil {
+            klog.ErrorS(err, "Failed to get DNS type for pod. Falling back to DNSClusterFirst policy.", "pod", klog.KObj(pod))
+            dnsType = podDNSCluster
+      }
+      switch dnsType {
+      case podDNSNone:
+            // DNSNone should use empty DNS settings as the base.
+            dnsConfig = &runtimeapi.DNSConfig{}
+      case podDNSCluster:
+            if len(c.clusterDNS) != 0 {
+                  // For a pod with DNSClusterFirst policy, the cluster DNS server is
+                  // the only nameserver configured for the pod. The cluster DNS server
+                  // itself will forward queries to other nameservers that is configured
+                  // to use, in case the cluster DNS server cannot resolve the DNS query
+                  // itself.
+                  dnsConfig.Servers = []string{}
+                  for _, ip := range c.clusterDNS {
+                        dnsConfig.Servers = append(dnsConfig.Servers, ip.String())
+                  }
+                  dnsConfig.Searches = c.generateSearchesForDNSClusterFirst(dnsConfig.Searches, pod)
+                  dnsConfig.Options = defaultDNSOptions
+                  break
+            }
+            // clusterDNS is not known. Pod with ClusterDNSFirst Policy cannot be created.
+            nodeErrorMsg := fmt.Sprintf("kubelet does not have ClusterDNS IP configured and cannot create Pod using %q policy. Falling back to %q policy.", v1.DNSClusterFirst, v1.DNSDefault)
+            c.recorder.Eventf(c.nodeRef, v1.EventTypeWarning, "MissingClusterDNS", nodeErrorMsg)
+            c.recorder.Eventf(pod, v1.EventTypeWarning, "MissingClusterDNS", "pod: %q. %s", format.Pod(pod), nodeErrorMsg)
+            // Fallback to DNSDefault.
+            fallthrough
+      case podDNSHost:
+            // When the kubelet --resolv-conf flag is set to the empty string, use
+            // DNS settings that override the docker default (which is to use
+            // /etc/resolv.conf) and effectively disable DNS lookups. According to
+            // the bind documentation, the behavior of the DNS client library when
+            // "nameservers" are not specified is to "use the nameserver on the
+            // local machine". A nameserver setting of localhost is equivalent to
+            // this documented behavior.
+            if c.ResolverConfig == "" {
+                  for _, nodeIP := range c.nodeIPs {
+                        if utilnet.IsIPv6(nodeIP) {
+                              dnsConfig.Servers = append(dnsConfig.Servers, "::1")
+                        } else {
+                              dnsConfig.Servers = append(dnsConfig.Servers, "127.0.0.1")
+                        }
+                  }
+                  if len(dnsConfig.Servers) == 0 {
+                        dnsConfig.Servers = append(dnsConfig.Servers, "127.0.0.1")
+                  }
+                  dnsConfig.Searches = []string{"."}
+            }
+      }
+
+      if pod.Spec.DNSConfig != nil {
+            dnsConfig = appendDNSConfig(dnsConfig, pod.Spec.DNSConfig)
+      }
+      return c.formDNSConfigFitsLimits(dnsConfig, pod), nil
+}
+```

@@ -3,7 +3,7 @@ import { sortPosts } from "@/lib/utils";
 import MainPostItem from "@/components/post-item";
 import { CustomPagination } from "@/components/custom-pagination";
 
-const POSTS_PER_PAGE = 5;
+const POSTS_PER_PAGE = 7;
 
 interface HomePageProps {
   searchParams: Promise<{

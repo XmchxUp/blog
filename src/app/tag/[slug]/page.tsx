@@ -10,8 +10,15 @@ interface TagPageProps {
 }
 
 async function getPostsFromParams(params: Params) {
-  const slug = decodeURIComponent(params.slug);
-  return posts.filter((post) => !post.draft && post.tags?.includes(slug));
+  const slug = decodeURIComponent(params.slug).toLowerCase();
+  console.log(slug);
+  return posts.filter((post) => {
+    if (post.draft) {
+      return false;
+    }
+
+    return post.tags?.some(t => t.toLowerCase() === slug);
+  });
 }
 
 async function CategoryPage(props: TagPageProps) {

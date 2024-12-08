@@ -9,7 +9,6 @@ tags: ["Kata", "Algorithm", "AOC"]
 
 ## Advent Of Code 2024
 
-
 ```
       --------Part 1--------   --------Part 2--------
 Day       Time   Rank  Score       Time   Rank  Score
@@ -26,36 +25,38 @@ Day       Time   Rank  Score       Time   Rank  Score
 
 partI: 模拟
 
-partII: 使用暴力的将所有位置设置成#，然后判断有没有在loop里主要是判断三元组，(x,y,dir)，只用坐标肯定不行，因为可能正常情况也会走到。用时87S `87.675 Part 2: 2022`
+partII: 使用暴力的将所有位置设置成#，然后判断有没有在 loop 里主要是判断三元组，(x,y,dir)，只用坐标肯定不行，因为可能正常情况也会走到。用时 87S `87.675 Part 2: 2022`
+
+其实只需要遍历看得见的位置就行不需要所有。
 
 ### Day 5: Print Queue
 
-partI: 暴力的每次从后往前检测是否符合Rule
+partI: 暴力的每次从后往前检测是否符合 Rule
 
 ```rust
     rules: HashMap<u32, HashSet<u32>>,
     seqs: Vec<Vec<u32>>,
 ```
 
-partII: 排序，如 rule `a|b` 表示a < b那么使用这个排序规则，最后在判断是否符合rule。
+partII: 排序，如 rule `a|b` 表示 a < b 那么使用这个排序规则，最后在判断是否符合 rule。
 
 ### Day 4: Ceres Search
 
 partI: DFS
 
-partII: 直接写死判断4种pattern了，主要通过中间A固定。
+partII: 直接写死判断 4 种 pattern 了，主要通过中间 A 固定。
 
 ### Day 3: Mull It Over
 
 partI： 使用正则
 
-partII：每次让don't之前所有操作都跟partI一样，再找到一个do，即do之后的操作同理。
+partII：每次让 don't 之前所有操作都跟 partI 一样，再找到一个 do，即 do 之后的操作同理。
 
 > 注意所有操作应该连起来，我的输入里有换行，被这个坑了好久。
 
 ### Day 2: Red-Nosed Reports
 
-partII: 直接遍历所有数每次remove掉，然后按partI逻辑判断就行。
+partII: 直接遍历所有数每次 remove 掉，然后按 partI 逻辑判断就行。
 
 ### Day 1: Historian Hysteria
 

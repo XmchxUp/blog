@@ -12,6 +12,8 @@ tags: ["Kata", "Algorithm", "AOC"]
 ```
       --------Part 1--------   --------Part 2--------
 Day       Time   Rank  Score       Time   Rank  Score
+  8   00:29:40   4106      0   00:54:22   5202      0
+  7   23:33:54  50547      0   23:40:07  47667      0
   6   00:15:41   2497      0   00:38:26   2332      0
   5   00:23:57   5045      0   00:37:53   4165      0
   4   02:02:34  16546      0   02:24:41  14838      0
@@ -20,6 +22,21 @@ Day       Time   Rank  Score       Time   Rank  Score
   1   00:14:13   5469      0   00:23:05   5735      0
 
 ```
+
+### Day 8: Resonant Collinearity
+
+模拟，主要记录所有相同的点，然后遍历所有可能性，partII 主要判断自身是否需要包含(如果只有两个 antenna)
+
+```rust
+pub struct Aoc2024_8 {
+    map: Vec<Vec<char>>,
+    points: HashMap<char, Vec<(i32, i32)>>,
+}
+```
+
+### Day 7: Bridge Repair
+
+基础的递归思路，遍历所有 operator。
 
 ### Day 6: Guard Gallivant
 

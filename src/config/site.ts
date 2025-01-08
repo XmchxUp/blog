@@ -10,17 +10,17 @@ export const siteConfig = {
   },
   navItems: [
     { href: "/", label: "Home" },
-    {
-      href: "/archives",
-      label: "Archives",
-    },
+    // {
+    //   href: "/archives",
+    //   label: "Archives",
+    // },
     {
       href: "/about",
       label: "About",
     },
     {
       href: "/hobby_project",
-      label: "Hobby Project",
+      label: "Hobby Projects",
     },
   ],
 };

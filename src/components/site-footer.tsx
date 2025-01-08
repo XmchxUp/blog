@@ -17,7 +17,7 @@ function SiteFooter() {
         </span>
         <span className="text-sm">
           Powered by&nbsp;
-          <a className="hover:underline text-primary" href="https://nextjs.org">
+          <a className="hover:underline text-primary" href="https://github.com/xmchxup/blog">
             Next.js
           </a>
         </span>

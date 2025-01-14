@@ -7,32 +7,41 @@ import WakaTimeStats from "./wakatime-stats";
 import { useEffect, useState } from "react";
 import { getRecentComment, RecentCommentData } from "@waline/api";
 
+const WALINE_SERVER_URL =
+  "https://waline-git-main-xmchxups-projects.vercel.app/";
+
+const latestPosts = sortPosts(posts)
+  .filter((p) => !p.draft)
+  .slice(0, 5);
+
 function MainRightAside() {
-  const WALINE_SERVER_URL =
-    "https://waline-git-main-xmchxups-projects.vercel.app/";
+
 
   const [recentComments, setRecentComments] = useState<RecentCommentData[]>([]);
   const [loadRecentCommentError, setLoadRecentCommentError] =
     useState<boolean>(false);
   const [loadingComments, setLoadingComments] = useState<boolean>(true);
-  const latestPosts = sortPosts(posts)
-    .filter((p) => !p.draft)
-    .slice(0, 5);
+
 
   useEffect(() => {
     const fetchComments = async () => {
-      const resp = await getRecentComment({
-        serverURL: WALINE_SERVER_URL,
-        count: 5,
-        lang: navigator.language,
-      });
-      if ("data" in resp) {
-        setLoadRecentCommentError(false);
-        setRecentComments(resp.data as RecentCommentData[]);
-      } else {
+      try {
+        const resp = await getRecentComment({
+          serverURL: WALINE_SERVER_URL,
+          count: 5,
+          lang: navigator.language,
+        });
+        if ("data" in resp) {
+          setRecentComments(resp.data as RecentCommentData[]);
+          setLoadRecentCommentError(false);
+        } else {
+          setLoadRecentCommentError(true);
+        }
+      } catch (error) {
         setLoadRecentCommentError(true);
+      } finally {
+        setLoadingComments(false);
       }
-      setLoadingComments(false);
     };
     fetchComments();
   }, []);

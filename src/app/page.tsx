@@ -5,6 +5,9 @@ import { CustomPagination } from "@/components/custom-pagination";
 
 const POSTS_PER_PAGE = 7;
 
+const allSortedPosts = sortPosts(posts.filter((post) => !post.draft));
+const totalPages = Math.ceil(allSortedPosts.length / POSTS_PER_PAGE);
+
 interface HomePageProps {
   searchParams: Promise<{
     page?: string;
@@ -14,12 +17,10 @@ interface HomePageProps {
 export default async function Home(props: HomePageProps) {
   const searchParams = await props.searchParams;
   const currentPage = Number(searchParams?.page) || 1;
-  const allSortedPosts = sortPosts(posts.filter((post) => !post.draft));
   const displayPosts = allSortedPosts.slice(
     POSTS_PER_PAGE * (currentPage - 1),
     POSTS_PER_PAGE * currentPage
   );
-  const totalPages = Math.ceil(allSortedPosts.length / POSTS_PER_PAGE);
 
   return (
     <div className="w-full flex flex-col items-center gap-8">

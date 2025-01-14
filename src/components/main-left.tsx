@@ -11,11 +11,11 @@ import {
   sortByDate,
 } from "@/lib/utils";
 
-function MainLeftAside() {
-  const categories = getAllCategory(posts);
-  const tags = getAllTags(posts);
-  const archives = getAllArchive(posts);
+const categories = getAllCategory(posts);
+const tags = getAllTags(posts);
+const archives = getAllArchive(posts);
 
+function MainLeftAside() {
   return (
     <aside className="-order-1 col-span-1 hidden md:block">
       <div className="flex flex-col gap-4 w-full sticky top-3 lg:top-4">

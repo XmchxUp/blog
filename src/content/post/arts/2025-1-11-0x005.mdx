@@ -7,8 +7,6 @@ category: "Life"
 tags: ["weekly"]
 ---
 
-分享一篇有观点和思考的技术文章。（也就是 Algorithm、Review、Tip、Share 简称 ARTS）
-
 ### Algorithm
 
 https://xmchx.vercel.app/post/kata/aoc2024#day-12-garden-groups
@@ -19,18 +17,17 @@ https://xmchx.vercel.app/post/kata/aoc2024#day-12-garden-groups
 
 > https://byteofdev.com/posts/javascript-benchmarking-mess/
 
-提出一些问题：如Caching, JIT删除无用代码，很难获取到精确的时间等等。
+提出一些问题：如 Caching, JIT 删除无用代码，很难获取到精确的时间等等。
 
 #### Simple defer, ready to use
 
 > https://gustedt.wordpress.com/2025/01/06/simple-defer-ready-to-use/
 
-
-主要基于GCC的能力，C++中没有意义，因为用Namespace\RAII可以做到
+主要基于 GCC 的能力，C++中没有意义，因为用 Namespace\RAII 可以做到
 
 ### Tip
 
-#### 为 Kyanos 提供RocketMQ协议支持
+#### 为 Kyanos 提供 RocketMQ 协议支持
 
 Kyanos is a networking analysis tool using eBPF. It can visualize the time packets spend in the kernel, capture requests/responses, makes troubleshooting more efficient.
 
@@ -38,9 +35,7 @@ https://github.com/hengyoush/kyanos
 
 > [PR](https://github.com/hengyoush/kyanos/pull/231)
 
-
 #### Type-Driven API Design in Rust
-
 
 > [video](https://www.youtube.com/watch?v=bnnacleqg6k)
 
@@ -48,32 +43,28 @@ https://github.com/hengyoush/kyanos
 
 #### TinyUFO
 
-> 读Pingora代码了解到的
+> 读 Pingora 代码了解到的
 
 TinyUFO is a fast and efficient in-memory cache. It adopts the state-of-the-art [S3-FIFO](https://s3fifo.com/) as well as [TinyLFU](https://arxiv.org/abs/1512.00727) algorithms to achieve high throughput and high hit ratio as the same time.
 
 ![s3fifo](https://s3fifo.com/assets/images/illustrations/s3fifo_diagram.gif)
 
-#### Kubeedge 提供的自动化Cherry Pick 
+#### Kubeedge 提供的自动化 Cherry Pick
 
 > https://kubeedge.io/docs/developer/cherry_pick
 
-主要是提供了一个Shell脚本，可以快速方便的，将某个PR快速合到某个对应的release分支下，自动创建新对应release的PR。
+主要是提供了一个 Shell 脚本，可以快速方便的，将某个 PR 快速合到某个对应的 release 分支下，自动创建新对应 release 的 PR。
 
 核心就是使用这个工具 [hub - A command-line tool that makes git easier to use with GitHub.](https://github.com/mislav/hub)
 
-这里有个坑，默认是使用Github密码的，但是会有Github Rate Limit的限制，会出错。
+这里有个坑，默认是使用 Github 密码的，但是会有 Github Rate Limit 的限制，会出错。
 
-解决方案就是使用TOKEN，`export GITHUB_TOKEN=<your-personal-access-token>`, token需要 `repo\write:org\read:user` 权限。
-
+解决方案就是使用 TOKEN，`export GITHUB_TOKEN=<your-personal-access-token>`, token 需要 `repo\write:org\read:user` 权限。
 
 #### Splice 系统调用
 
-splice系统调用，用于在两个文件描述符之间移动数据，而不需要将数据复制到用户空间。这种方法可以提高性能，特别是在处理大文件时，因为它避免了不必要的数据复制。
+splice 系统调用，用于在两个文件描述符之间移动数据，而不需要将数据复制到用户空间。这种方法可以提高性能，特别是在处理大文件时，因为它避免了不必要的数据复制。
 
 ```c
 ssize_t splice(int fd_in, loff_t *off_in, int fd_out, loff_t *off_out, size_t len, unsigned int flags);
 ```
-
-### Share
-

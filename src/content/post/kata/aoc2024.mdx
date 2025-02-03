@@ -25,43 +25,94 @@ Day       Time   Rank  Score       Time   Rank  Score
   2   02:46:57  25824      0   02:57:25  17743      0
   1   00:14:13   5469      0   00:23:05   5735      0
 
-```
-
 ### Day 12: Garden Groups
 
-首先是遍历所有点，从当前点出发，使用BFS遍历所有相关的region中的点。
+首先是遍历所有点，从当前点出发，使用 BFS 遍历所有相关的 region 中的点。
 
-即可获得所有region
+即可获得所有 region
 
-partI: 边长计算：对每个region中的点，可以先计算都有4个边，但是如果有一边与region中的点相连，则减少一边。
+partI: 边长计算：对每个 region 中的点，可以先计算都有 4 个边，但是如果有一边与 region 中的点相连，则减少一边。
 
 ```
- 4 + 4  => 6
- _   _      __
+
+4 + 4 => 6
+
+---
+
 |A| |A| => |AA|
- _   _      __
+
+---
+
 ```
 
+partII:
 
-partII: 
 ```
-A  _  B
+
+A _ B
 |point|
-C  _  D
+C _ D
+
 ```
 
-边长计算：对每个region中的点p，都有4个corner坐标，遍历每个corner坐标，判断四周的点是否是属于region中的，
+边长计算：对每个 region 中的点 p，都有 4 个 corner 坐标，遍历每个 corner 坐标，判断四周的点是否是属于 region 中的，
 
-如果是，则有四种情况，只有1/2/3/4个点属于region。
+如果是，则有四种情况，只有 1/2/3/4 个点属于 region。
 
-1/3 只有一个corner，即一条边
+1/3 只有一个 corner，即一条边
 
-4没有corner
+4 没有 corner
 
-2 分为只有对角点有两个conrner，相邻点没有conrner
+2 分为只有对角点有两个 conrner，相邻点没有 conrner
 
 ![](https://github.com/XmchxUp/picx-images-hosting/raw/master/20250114/image.64dxycq2py.webp)
 
+
+
+### Day 11: Plutonian Pebbles
+
+partI: 模拟
+
+partII: 由于数字很大，模拟不太行。
+
+考虑一个数 N，每次变化可能会导致出两个或一个新的数，两个都是独立的继续变化下去，可以看成一个树 DFS 加上 cache 保证同样的数不需要继续。
+
+```
+
+       1024
+    /        \
+
+10 24
+/ \ / \
+ 1 0 2 4
+
+````
+
+### Day 10: Hoof It
+
+常规 BFS 遍历
+
+partI: 只需要记录不同 9 的个数
+
+partII: 需要统计多种路线
+
+### Day 9: Disk Fragmenter
+
+模拟，主要记录了下面的信息。
+
+part2：注意不要往后移
+
+```rust
+pub struct Aoc2024_9 {
+    // index -> id
+    index_2_id_map: HashMap<u64, u64>,
+    // id -> cnt
+    id_2_cnt_map: HashMap<u64, u64>,
+    // index->free_space_cnt
+    index_2_free_space_map: HashMap<u64, u64>,
+    max_idx: u64,
+}
+````
 
 ### Day 8: Resonant Collinearity
 

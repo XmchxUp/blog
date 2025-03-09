@@ -1,0 +1,180 @@
+---
+author: "Xmchx"
+title: "2025-3-02 周记 0x008"
+date: "2025-03-02"
+description: "Machine Learning Compilation…"
+category: "Life"
+tags: ["weekly"]
+---
+
+## Algorithm
+
+> [第 431 场周赛 - 力扣（LeetCode）](https://leetcode.cn/contest/weekly-contest-431/)
+
+## Review
+
+### Software Systems Curriculum Learning Objectives
+
+> https://abigalekim.github.io/systemsobjectives/
+
+提到的点还是比较关键的，理解整体系统设计和实现，写文档，写测试，调试能力。
+
+### My experience crafting an interpreter with Rust
+
+> https://ceronman.com/2021/07/22/my-experience-crafting-an-interpreter-with-rust/
+
+## Tip
+
+### Rust serde crate
+
+```rust
+#[derive(Deserialize)]
+pub struct Config<I: IndexProvider, A: AuthProvider> {
+    pub service: ServiceConfig,
+    #[serde(flatten)]
+    pub index_config: I::Config,
+    #[serde(flatten)]
+    pub auth_config: A::Config,
+    pub store: StoreConfig,
+}
+
+#[derive(Deserialize, Serialize)]
+struct IndexConfig {
+    index_path: String,
+    index_type: String,
+}
+
+#[derive(Deserialize, Serialize)]
+struct AuthConfig {
+    auth_method: String,
+    token_expiry: u32,
+}
+```
+
+使用`#[serde(flatten)]`可以将子属性上移到顶层
+
+```yaml
+{
+  "service": { ... },
+  "index_path": "/data/index",
+  "index_type": "fulltext",
+  "auth_method": "jwt",
+  "token_expiry": 3600,
+  "store": { ... },
+}
+```
+
+而不是，需要注意不能包含一样的属性。
+
+```yaml
+{
+  "service": { ... },
+  "index_config": { "index_path": "/data/index", "index_type": "fulltext" },
+  "auth_config": { "auth_method": "jwt", "token_expiry": 3600 },
+  "store": { ... },
+}
+```
+
+值缺失时，可以使用，会调用 default_crate_size_limit 函数
+
+```rust
+#[serde(default = "default_crate_size_limit")]
+```
+
+### Rust cfg-if crate
+
+[GitHub - rust-lang/cfg-if: A if/elif-like macro for Rust #\[cfg\] statements](https://github.com/rust-lang/cfg-if)
+
+[cfg - Rust By Example](https://doc.rust-lang.org/rust-by-example/attribute/cfg.html)
+
+```rust
+cfg_if::cfg_if! {
+    if #[cfg(unix)] {
+        fn foo() { /* unix specific functionality */ }
+    } else if #[cfg(target_pointer_width = "32")] {
+        fn foo() { /* non-unix, 32-bit functionality */ }
+    } else {
+        fn foo() { /* fallback implementation */ }
+    }
+}
+
+fn main() {
+    foo();
+}
+```
+
+=>
+
+```rust
+#[cfg(unix)]
+fn foo() { /* unix specific functionality */ }
+#[cfg(all(target_pointer_width = "32", not(unix)))]
+fn foo() { /* non-unix, 32-bit functionality */ }
+#[cfg(not(any(unix, target_pointer_width = "32")))]
+fn foo() { /* fallback implementation */ }
+```
+
+可以像 if-else 一样写 cfg 代码
+
+具体项目代码
+
+```rust
+cfg_if::cfg_if! {
+    if #[cfg(feature = "filesystem-index-backend")] {
+        use freighter_fs_index::FsIndexProvider as SelectedIndexProvider;
+    } else if #[cfg(feature = "postgresql-index-backend")] {
+        use freighter_pg_index::PgIndexProvider as SelectedIndexProvider;
+    } else {
+        compile_error!("Use cargo features to select an index backend");
+    }
+}
+cfg_if::cfg_if! {
+    if #[cfg(feature = "filesystem-auth-backend")] {
+        use freighter_auth::fs_backend::FsAuthProvider as SelectedAuthProvider;
+    } else if #[cfg(feature = "cloudflare-auth-backend")] {
+        use freighter_auth::cf_backend::CfAuthProvider as SelectedAuthProvider;
+    } else if #[cfg(feature = "yes-auth-backend")] {
+        use freighter_auth::yes_backend::YesAuthProvider as SelectedAuthProvider;
+    } else {
+        use freighter_auth::no_backend::NoAuthProvider as SelectedAuthProvider;
+    }
+}
+```
+
+### Compiling **mlc**, the course
+
+Compilers in machine learning are the silent toolchains that make compute possible at massive scale, on CPUs and on hardware accelerators like GPUs. How do they work? And what really goes into doing matrix multiplication fast?
+
+[Halide](https://dl.acm.org/doi/pdf/10.1145/3150211)•[PyTorch](https://arxiv.org/pdf/1912.01703.pdf)•[Introduction to ML compilers](https://huyenchip.com/2021/09/07/a-friendly-introduction-to-machine-learning-compilers-and-optimizers.html)•[mlc.ai](https://mlc.ai/)
+
+对这一块不太感冒，快速过一遍，知道有这么一回事儿。
+
+感觉什么矩阵优化早在 CSAPP 中就了解过，这里是用现代 GPU/CPU 提供的能力做的并行化优化。
+
+> [A]s we know, there are known knowns; there are things we know we know. We also know there are known unknowns; that is to say we know there are some things we do not know. But there are also unknown unknowns — the ones we don’t know we don’t know.
+
+### 常见的搜索算法
+
+DFS/BFS
+
+**Uniform-Cost Search (UCS):**  
+带有 cost 的 BFS
+
+**Iterative Deepening Search (IDS):**  
+带有深度的 DFS 结合 BFS
+
+[Iterative Deepening Search(IDS) or Iterative Deepening Depth First Search(IDDFS) - GeeksforGeeks](https://www.geeksforgeeks.org/iterative-deepening-searchids-iterative-deepening-depth-first-searchiddfs/)
+
+### Introduction - Rust Design Patterns
+
+> https://rust-unofficial.github.io/patterns/intro.html
+
+还是得多写，多看点开源项目代码。
+
+## Share
+
+### 入门理财
+
+[新手必问：炒股真的能赚到钱？](https://www.futunn.com/learn/detail-beginner-must-ask-stocks-really-make-money-40364-2111650169)  
+[美国证券市场速览](https://www.futunn.com/learn/detail-a-quick-overview-of-the-american-securities-market-83955-230554038)  
+[01 你会投资这家公司吗](https://www.futunn.com/learn/detail-will-you-invest-in-this-company-54401-220447023)

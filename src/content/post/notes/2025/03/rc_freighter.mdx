@@ -1,0 +1,51 @@
+---
+category: "Technology"
+date: "2025-03-09 12:00"
+title: "ReadCode - freighter"
+tags: ["FOSS", "Backend Development"]
+---
+
+# 简介 
+
+> https://github.com/cloudflare/freighter
+
+freighter: A fast, modular, and operationally boring Rust private registry implementation.
+
+
+## 分层
+
+Command Line: 包装的cli调用start http server
+
+HTTP Server: 提供http server
+
+API Types: 提供http server的一些类型
+
+Index Provider: 提供索引，backend也有多种实现fs/pg
+
+Auth Provider: 提供权限的校验，backend有多种实现 fs/no/yes/cloudflare
+
+API Client 包装的cli发送http request
+
+# Crates
+
+## cfg-if
+
+[GitHub - rust-lang/cfg-if: A if/elif-like macro for Rust #\[cfg\] statements](https://github.com/rust-lang/cfg-if)  
+
+[cfg - Rust By Example](https://doc.rust-lang.org/rust-by-example/attribute/cfg.html)
+
+## Semver
+
+[GitHub - dtolnay/semver: Parser and evaluator for Cargo's flavor of Semantic Versioning](https://github.com/dtolnay/semver)
+
+## mertics-prometheus-rs
+
+[`prometheus` backend for `metrics` crate](https://github.com/instrumentisto/metrics-prometheus-rs)
+
+## tempfile
+
+[tempfile](https://crates.io/crates/tempfile)  
+A secure, cross-platform, temporary file library for Rust. In addition to creating temporary files, this library also allows users to securely open multiple independent references to the same temporary file (useful for consumer/producer patterns and surprisingly difficult to implement securely).
+
+[NamedTempFile in tempfile - Rust](https://docs.rs/tempfile/3.17.1/tempfile/struct.NamedTempFile.html)  
+防止用户使用软件清理掉tempfile

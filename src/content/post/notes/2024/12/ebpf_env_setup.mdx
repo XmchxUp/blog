@@ -1,0 +1,44 @@
+---
+category: "Technology"
+date: "2024-12-09 12:00"
+title: "eBPF Env Setup"
+tags: ["eBPF"]
+---
+
+### env
+
+```sh
+    apt-get update
+    apt-get install -y apt-transport-https ca-certificates curl clang llvm jq
+    apt-get install -y libelf-dev libpcap-dev libbfd-dev binutils-dev build-essential make 
+    apt-get install -y linux-tools-common linux-tools-$(uname -r) 
+    apt-get install -y bpfcc-tools
+    apt-get install -y python3-pip
+```
+
+### Building libbpf and installing header files
+
+Libbpf is included as a submodule in this repo. You'll need to build and install  
+it for the C-based examples to build correctly. (See libbpf/README.md for more  
+details.)
+
+```sh
+cd libbpf/src
+make install 
+cd ../..
+```
+
+### Building bpftool
+
+There are several examples using `bpftool` throughout the book. To get a version  
+with libbfd support (which you'll need if you want to see the jited code in the  
+Chapter 3 examples) you might need to build it from source:
+
+```sh
+cd ..
+git clone --recurse-submodules https://github.com/libbpf/bpftool.git
+cd bpftool/src 
+make install 
+```
+
+`bpftool` binaries are now also available from https://github.com/libbpf/bpftool/releases these days.

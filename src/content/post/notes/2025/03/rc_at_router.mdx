@@ -1,0 +1,526 @@
+---
+category: "Technology"
+date: "2025-03-10 12:00"
+title: "RC-atc-router"
+description: "Kong Expressions Language"
+tags: ["FOSS", "Backend Development"]
+---
+
+## 介绍
+
+[Kong · GitHub](https://github.com/Kong?q=atc&type=all&language=&sort=)
+
+[About Expressions Language - Kong Gateway | Kong Docs](https://docs.konghq.com/gateway/latest/reference/expressions-language/)
+
+> The expressions language is a strongly typed Domain-Specific Language (DSL) that allows you to define comparison operations on various input data. The results of the comparisons can be combined with logical operations, which allows complex routing logic to be written while ensuring good runtime matching performance.
+
+## Parser
+
+### Pest
+
+这里Grammar的定义和内部Parser直接引用`pest`，再将其转成自己定义的AST
+
+[GitHub - pest-parser/pest: The Elegant Parser](https://github.com/pest-parser/pest)
+
+pest.rs官网里有在线的解析器，可以将下面的pest语法规则贴进去，然后下面可以选择相应的规则如 ident, WHITESPACE等，有input可以验证你的理解。
+
+除了`pest`，还有类似的`BNF`, `EBNF`, `ANTLR`等等。
+
+这里引入第三方的Parser，有什么好处？自己手写不行吗？
+
+1. 维护性：后续修改规则不需要改代码，只需要改规则文件。
+2. 性能：专业的人写的性能大概率比你好。
+
+看看官网给的说法
+
+1. Accessibility： Grammar-generated parsers are both easier to use and maintain than their hand-written counterparts.
+2. Correctness: Grammars offer better correctness guarantees, and issues can be solved declaratively in the grammar itself. Rust's memory safety further limits the amount of damage bugs can do.
+3. Performance: High-level static analysis and careful low-level implementation build a solid foundation on which serious performance tuning is possible.
+
+![](https://github.com/XmchxUp/picx-images-hosting/raw/master/20250311/image.6t79qaqbna.webp)
+
+```pest
+WHITESPACE = _{ " " | "\t" | "\r" | "\n" }
+ident = @{ ASCII_ALPHA ~ (ASCII_ALPHANUMERIC | "_" | ".")* }
+rhs = { str_literal | rawstr_literal | ip_literal | int_literal }
+transform_func = { ident ~ "(" ~ lhs ~ ")" }
+lhs = { transform_func | ident }
+
+
+int_literal = ${ "-"? ~ digits }
+digits = _{ oct_digits | ( "0x" ~ hex_digits ) | dec_digits }
+hex_digits = { ASCII_HEX_DIGIT+ }
+oct_digits = { "0" ~ ASCII_OCT_DIGIT+ }
+dec_digits = { ASCII_DIGIT+ }
+
+
+str_literal = ${ "\"" ~ str_inner ~ "\"" }
+str_inner = _{ (str_esc | str_char)* }
+str_char = { !("\"" | "\\") ~ ANY }
+str_esc = { "\\" ~ ("\"" | "\\" | "n" | "r" | "t") }
+
+rawstr_literal = ${ "r#\"" ~ rawstr_char* ~ "\"#" }
+rawstr_char = { !"\"#" ~ ANY }
+
+ipv4_literal = @{ ASCII_DIGIT{1,3} ~ ( "." ~ ASCII_DIGIT{1,3} ){3} }
+ipv6_literal = @{
+    ( ":" | ASCII_HEX_DIGIT{1,4} ) ~ ":" ~ ( ASCII_HEX_DIGIT{1,4} | ":" )*
+}
+ipv4_cidr_literal = @{ ipv4_literal ~ "/" ~ ASCII_DIGIT{1,2} }
+ipv6_cidr_literal = @{ ipv6_literal ~ "/" ~ ASCII_DIGIT{1,3} }
+ip_literal = _{ ipv4_cidr_literal | ipv6_cidr_literal | ipv4_literal | ipv6_literal }
+
+
+binary_operator = { "==" | "!=" | "~" | "^=" | "=^" | ">=" |
+                    ">" | "<=" | "<" | "in" | "not" ~ "in" | "contains" }
+logical_operator = _{ and_op | or_op }
+and_op = { "&&" }
+or_op = { "||" }
+
+not_op = { "!" }
+
+
+predicate = { lhs ~ binary_operator ~ rhs }
+parenthesised_expression = { not_op? ~ "(" ~ expression ~ ")" }
+term = { predicate | parenthesised_expression }
+expression = { term ~ ( logical_operator ~ term )* }
+matcher = { SOI ~ expression ~ EOI }
+
+```
+
+### Code
+
+```rust
+#[allow(clippy::result_large_err)] // it's fine as parsing is not the hot path
+pub fn parse(source: &str) -> ParseResult<Expression> {
+    ATCParser::new().parse_matcher(source)
+}
+
+
+
+#[derive(Parser)]
+#[grammar = "atc_grammar.pest"]
+struct ATCParser {
+    pratt_parser: PrattParser<Rule>,
+}
+
+impl ATCParser {
+    fn new() -> Self {
+        Self {
+            pratt_parser: PrattParser::new()
+                .op(Op::infix(Rule::and_op, AssocNew::Left))
+                .op(Op::infix(Rule::or_op, AssocNew::Left)),
+        }
+    }
+    // matcher = { SOI ~ expression ~ EOI }
+    #[allow(clippy::result_large_err)] // it's fine as parsing is not the hot path
+    fn parse_matcher(&mut self, source: &str) -> ParseResult<Expression> {
+        let pairs = ATCParser::parse(Rule::matcher, source)?;
+        let expr_pair = pairs.peek().unwrap().into_inner().peek().unwrap();
+        let rule = expr_pair.as_rule();
+        match rule {
+            Rule::expression => parse_expression(expr_pair, &self.pratt_parser),
+            _ => unreachable!(),
+        }
+    }
+}
+
+```
+
+对这个比较迷惑
+
+```rust
+	.op(Op::infix(Rule::and_op, AssocNew::Left))
+	.op(Op::infix(Rule::or_op, AssocNew::Left)),
+```
+
+翻阅pest文档  
+[doc](https://docs.rs/pest/latest/pest/pratt_parser/struct.PrattParser.html)
+
+> Below is a [`PrattParser`](https://docs.rs/pest/latest/pest/pratt_parser/struct.PrattParser.html) that is able to parse an `expr` in the above grammar. The order of precedence corresponds to the order in which [`op`](https://docs.rs/pest/latest/pest/pratt_parser/struct.PrattParserMap.html#method.op) is called. Thus, `mul` will have higher precedence than `add`. Operators can also be chained with `|` to give them equal precedence.
+
+```
+let pratt =
+    PrattParser::new()
+        .op(Op::infix(Rule::add, Assoc::Left) | Op::infix(Rule::sub, Assoc::Left))
+        .op(Op::infix(Rule::mul, Assoc::Left) | Op::infix(Rule::div, Assoc::Left))
+        .op(Op::infix(Rule::pow, Assoc::Right))
+        .op(Op::prefix(Rule::neg))
+        .op(Op::postfix(Rule::fac));
+```
+
+在看对应的test case，即or_op的优先级应该高于and_op
+
+```rust
+(
+	"a == 1 && b != 2 || c >= 3",
+	"((a == 1) && ((b != 2) || (c >= 3)))",
+),
+```
+
+后续都是正常的将pest的解析结果转换成自定义的AST。
+
+## AST
+
+定义还是很清晰的
+
+```rust
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug)]
+pub enum Expression {
+    Logical(Box<LogicalExpression>),
+    Predicate(Predicate),
+}
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug)]
+pub enum LogicalExpression {
+    And(Expression, Expression),
+    Or(Expression, Expression),
+    Not(Expression),
+}
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, PartialEq, Eq)]
+pub enum LhsTransformations {
+    Lower,
+    Any,
+}
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, PartialEq, Eq)]
+pub enum BinaryOperator {
+    Equals,         // ==
+    NotEquals,      // !=
+    Regex,          // ~
+    Prefix,         // ^=
+    Postfix,        // =^
+    Greater,        // >
+    GreaterOrEqual, // >=
+    Less,           // <
+    LessOrEqual,    // <=
+    In,             // in
+    NotIn,          // not in
+    Contains,       // contains
+}
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone)]
+pub enum Value {
+    String(String),
+    IpCidr(IpCidr),
+    IpAddr(IpAddr),
+    Int(i64),
+    #[cfg_attr(feature = "serde", serde(with = "serde_regex"))]
+    Regex(Regex),
+}
+
+impl PartialEq for Value {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Self::Regex(_), _) | (_, Self::Regex(_)) => {
+                panic!("Regexes can not be compared using eq")
+            }
+            (Self::String(s1), Self::String(s2)) => s1 == s2,
+            (Self::IpCidr(i1), Self::IpCidr(i2)) => i1 == i2,
+            (Self::IpAddr(i1), Self::IpAddr(i2)) => i1 == i2,
+            (Self::Int(i1), Self::Int(i2)) => i1 == i2,
+            _ => false,
+        }
+    }
+}
+
+impl Value {
+    pub fn my_type(&self) -> Type {
+        match self {
+            Value::String(_) => Type::String,
+            Value::IpCidr(_) => Type::IpCidr,
+            Value::IpAddr(_) => Type::IpAddr,
+            Value::Int(_) => Type::Int,
+            Value::Regex(_) => Type::Regex,
+        }
+    }
+}
+
+impl From<String> for Value {
+    fn from(v: String) -> Self {
+        Value::String(v)
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Eq, PartialEq)]
+#[repr(C)]
+pub enum Type {
+    String,
+    IpCidr,
+    IpAddr,
+    Int,
+    Regex,
+}
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug)]
+pub struct Lhs {
+    pub var_name: String,
+    pub transformations: Vec<LhsTransformations>,
+}
+
+impl Lhs {
+    pub fn my_type<'a>(&self, schema: &'a Schema) -> Option<&'a Type> {
+        schema.type_of(&self.var_name)
+    }
+
+    pub fn get_transformations(&self) -> (bool, bool) {
+        let mut lower = false;
+        let mut any = false;
+
+        self.transformations.iter().for_each(|i| match i {
+            LhsTransformations::Any => any = true,
+            LhsTransformations::Lower => lower = true,
+        });
+
+        (lower, any)
+    }
+}
+
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug)]
+pub struct Predicate {
+    pub lhs: Lhs,
+    pub rhs: Value,
+    pub op: BinaryOperator,
+}
+```
+
+## FFI
+
+需要看下外部Lua是怎么调用的，使用了哪些模块？
+
+rust这面通过[cbindgen](https://github.com/mozilla/cbindgen)生成C语言的binding 头文件
+
+cbindgen.toml
+
+```toml
+language = "C"
+header = "/* Generated by cbindgen.  Do NOT edit. */"
+
+[enum]
+prefix_with_name = true
+
+[defines]
+"feature = ffi" = "DEFINE_ATC_ROUTER_FFI"
+
+[macro_expansion]
+bitflags = true
+
+[export]
+include = [
+    "BinaryOperatorFlags", 
+    "ATC_ROUTER_EXPRESSION_VALIDATE_OK", 
+    "ATC_ROUTER_EXPRESSION_VALIDATE_FAILED",
+    "ATC_ROUTER_EXPRESSION_VALIDATE_BUF_TOO_SMALL"
+]
+```
+
+再通过一个cdefs.lua加载导出
+
+```lua
+local ffi = require("ffi")
+
+
+-- generated from "cbindgen -l c", do not edit manually
+ffi.cdef([[
+...]])
+
+
+local ERR_BUF_MAX_LEN = 4096
+
+
+-- From: https://github.com/openresty/lua-resty-signal/blob/master/lib/resty/signal.lua
+...
+
+local lib_name = ffi.os == "OSX" and "libatc_router.dylib" or "libatc_router.so"
+
+local clib, tried_paths = load_shared_lib(lib_name)
+if not clib then
+    error(("could not load %s shared library from the following paths:\n"):format(lib_name) ..
+          table.concat(tried_paths, "\n"), 2)
+end
+
+
+return {
+    clib = clib,
+    ERR_BUF_MAX_LEN = ERR_BUF_MAX_LEN,
+
+    context_free = function(c)
+        clib.context_free(c)
+    end,
+
+    schema_free = function(s)
+        clib.schema_free(s)
+    end,
+
+    router_free = function(r)
+        clib.router_free(r)
+    end,
+}
+
+```
+
+lua调用案例，测试文件里的
+
+```lua
+    location = /t {
+        content_by_lua_block {
+            local schema = require("resty.router.schema")
+            local router = require("resty.router.router")
+            local context = require("resty.router.context")
+
+            local s = schema.new()
+
+            s:add_field("http.path", "String")
+            s:add_field("tcp.port", "Int")
+
+            local r = router.new(s)
+            assert(r:add_matcher(0, "a921a9aa-ec0e-4cf3-a6cc-1aa5583d150c",
+                                 "http.path ^= \"/foo\" && tcp.port == 80"))
+
+            local c = context.new(s)
+            c:add_value("http.path", "/foo/bar")
+            c:add_value("tcp.port", 80)
+
+            local matched = r:execute(c)
+            ngx.say(matched)
+
+            local uuid, prefix = c:get_result("http.path")
+            ngx.say(uuid)
+            ngx.say(prefix)
+        }
+    }
+```
+
+```sh
+-> % tree lib/resty/router 
+lib/resty/router
+├── cdefs.lua
+├── context.lua
+├── router.lua
+└── schema.lua
+
+0 directories, 4 files
+```
+
+可以看到主要还是用lua来调用并包装提供的clib库
+
+主要定义导出的c函数都在此目录下
+
+```sh
+tree src/ffi 
+src/ffi
+├── context.rs
+├── expression.rs
+├── mod.rs
+├── router.rs
+└── schema.rs
+```
+
+整体执行过程就是，Rust后端构建成动态链接库，导出C Binding头文件，用Lua加载，并封装处理  
+如这个router execute执行
+
+```lua
+local r = router.new(s)
+local matched = r:execute(c)
+	|
+	|
+	V
+function _M:execute(context)
+    assert(context.schema == self.schema)
+    return clib.router_execute(self.router, context.context) == true
+end
+```
+
+	|
+	|
+	V
+
+```rust
+#[no_mangle]
+pub unsafe extern "C" fn router_execute(router: &Router, context: &mut Context) -> bool {
+    router.execute(context)
+}
+
+```
+
+## router
+
+```rust
+
+#[derive(PartialEq, Eq, PartialOrd, Ord)]
+struct MatcherKey(usize, Uuid);
+
+pub struct Router<'a> {
+    schema: &'a Schema,
+    matchers: BTreeMap<MatcherKey, Expression>,
+    pub fields: HashMap<String, usize>,
+}
+
+impl<'a> Router<'a> {
+    pub fn new(schema: &'a Schema) -> Self {Key
+        Self {
+            schema,
+            matchers: BTreeMap::new(),
+            fields: HashMap::new(),
+        }
+    }
+
+	// (priority, uuid) 为Key, Expression为Value
+    pub fn add_matcher(&mut self, priority: usize, uuid: Uuid, atc: &str) -> Result<(), String> {
+        let key = MatcherKey(priority, uuid);
+
+        if self.matchers.contains_key(&key) {
+            return Err("UUID already exists".to_string());
+        }
+
+        let ast = parse(atc).map_err(|e| e.to_string())?;
+
+        ast.validate(self.schema)?;
+        ast.add_to_counter(&mut self.fields);
+
+        assert!(self.matchers.insert(key, ast).is_none());
+
+        Ok(())
+    }
+
+    pub fn remove_matcher(&mut self, priority: usize, uuid: Uuid) -> bool {
+        let key = MatcherKey(priority, uuid);
+
+        if let Some(ast) = self.matchers.remove(&key) {
+            ast.remove_from_counter(&mut self.fields);
+            return true;
+        }
+
+        false
+    }
+
+	// 这里使用的是BTreeMap，则按key的顺序，先比较priority，再比较uuid
+    pub fn execute(&self, context: &mut Context) -> bool {
+        for (MatcherKey(_, id), m) in self.matchers.iter().rev() {
+            let mut mat = Match::new();
+            if m.execute(context, &mut mat) {
+                mat.uuid = *id;
+                context.result = Some(mat);
+
+                return true;
+            }
+        }
+
+        false
+    }
+}
+
+```
+
+## Wasm
+
+还有一个Wasm的Binding, 供JS调用。

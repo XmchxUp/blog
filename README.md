@@ -1,1 +1,1 @@
-## Custom Blog Theme
+## My Blog Theme

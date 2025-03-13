@@ -1,6 +1,10 @@
-import { Post } from "#site/content";
+import { Post, posts } from "#site/content";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+
+export const ALL_CATEGORY = getAllCategory(posts);
+export const ALL_TAG = getAllTag(posts);
+export const ALL_ARCHIVE = getAllArchive(posts);
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -23,7 +27,7 @@ export function sortPosts(posts: Array<Post>) {
   });
 }
 
-export function getAllTags(posts: Array<Post>) {
+export function getAllTag(posts: Array<Post>) {
   const tags: Record<string, number> = {};
   posts.forEach((post) => {
     if (!post.draft) {
@@ -45,7 +49,7 @@ export function getAllCategory(posts: Array<Post>) {
   return categories;
 }
 
-export function getArchives(posts: Array<Post>) {
+export function getAllArchive(posts: Array<Post>) {
   const archives: Record<string, number> = {};
   posts.forEach((post) => {
     if (!post.draft) {

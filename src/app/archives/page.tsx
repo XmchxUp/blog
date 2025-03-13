@@ -1,13 +1,9 @@
-import { posts } from "#site/content";
-import PostsByYear from "@/components/posts-by-year";
+import AllAnything from "@/components/all-tags";
+import { ALL_ARCHIVE, sortByDate } from "@/lib/utils";
 
-async function ArchivePage() {
-  return (
-    <PostsByYear
-      title={"Archives"}
-      posts={posts.filter((post) => !post.draft)}
-    />
-  );
+async function ArchivesPage() {
+  let archives = sortByDate(ALL_ARCHIVE, true);
+  return <AllAnything title={"Archives"} items={archives} />;
 }
 
-export default ArchivePage;
+export default ArchivesPage;

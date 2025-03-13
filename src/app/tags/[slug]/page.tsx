@@ -16,14 +16,13 @@ async function getPostsFromParams(params: Params) {
       return false;
     }
 
-    return post.tags?.some(t => t.toLowerCase() === slug);
+    return post.tags?.some((t: string) => t.toLowerCase() === slug);
   });
 }
 
 async function CategoryPage(props: TagPageProps) {
   const params = await props.params;
   const curPosts = await getPostsFromParams(params);
-
 
   return <PostsByYear title={`Tag: ${params.slug}`} posts={curPosts} />;
 }

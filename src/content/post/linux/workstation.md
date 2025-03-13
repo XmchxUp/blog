@@ -1,15 +1,21 @@
 ---
 author: "韩立"
-title: "配置日记"
-date: "2022-09-21"
-ShowBreadCrumbs: false
+title: "Workstation"
+date: "2025-03-12 12:00"
 tags: ["Maintenance"]
 category: "Technology"
 ---
 
-第一次某个电脑清理软件给我 WSL2 全删了，第二次 nt 的去删掉了 ubuntu20 内置的 python3.8(/usr/bin/python3.8、/usr/local/lib/python3.8) 导致包管理错误。[Broken python dependencies after trying to re-install](https://askubuntu.com/questions/1065556/broken-python-dependencies-after-trying-to-re-install)
+> 2025-03-12 目前主要使用Windows+wsl2/Ubuntu两种系统下开发，之前用公司mac，想换但是太贵。
 
-## 各语言 Formatter 和 Linter
+## Vscode & Jetbrains & LazyVim
+
+> https://github.com/xmchxup/dotfiles/
+
+主要使用Vscode，还管什么IDE核心还是用Vim，
+
+
+## 各语言的 Formatter 和 Linter
 
 Formatter
 
@@ -33,6 +39,9 @@ Linter
 
 ## 主题配色
 
+> 最近主要用Light了
+
+- Github Light Theme
 - Atom One Light Theme
 - Atom One Dark Theme
 - Penumbra 有明暗两个主题，据说是通过数学计算得到的、最有利于感知的配色方案。
@@ -40,12 +49,19 @@ Linter
 
 ## 图床
 
-- https://github.com/XmchxUp/cloudimg
-  [PicX](https://picx.xpoet.cn/#/upload)
+[PicX](https://picx.xpoet.cn/#/upload)
 
 ## Java
 
-多版本切换试例
+> 更建议只在Windows下开发使用Jetbrains IDE，很方便的管理
+
+
+### jenv: Manage your Java environment
+
+> https://github.com/jenv/jenv
+
+### 原始人多版本切换方案
+
 ~/.bashrc
 
 ```sh
@@ -71,6 +87,8 @@ source ~/.bashrc
 
 ## Python
 
+最近主要全部使用 [uv](https://github.com/astral-sh/uv): An extremely fast Python package and project manager, written in Rust.
+
 设置默认使用 python3
 
 ```sh
@@ -87,25 +105,10 @@ sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 
 - 版本管理使用[NVM](https://github.com/nvm-sh/nvm)
 - 依赖管理使用[PNpm](https://pnpm.io/)
 
-## 设置代理脚本
+## 代理
 
-proxy.sh
+[Clash Nyanpasu～(∠・ω< )⌒☆​](https://github.com/libnyanpasu/clash-nyanpasu)
 
-```bash
-#!/bin/bash
-host_ip=$(cat /etc/resolv.conf |grep "nameserver" |cut -f 2 -d " ")
-export ALL_PROXY="http://$host_ip:7980"
-```
-
-source proxy
-
-## NvChad
-
-> [安装](https://nvchad.com/quickstart/install#pre-requisites)
-
-- [Install a Nerd Font](https://learn.microsoft.com/en-us/windows/terminal/tutorials/custom-prompt-setup#install-a-nerd-font)
-- [Install Nvim](https://github.com/neovim/neovim/wiki/Installing-Neovim)
-- https://github.com/craftzdog/dotfiles-public
 
 ## Zsh && Oh My Zsh
 
@@ -113,14 +116,6 @@ source proxy
 
 ```sh
 plugins=(git zsh-autosuggestions zsh-syntax-highlighting sudo wakatime zsh-vi-mode)
-```
-
-## Git
-
-```sh
-git config --global user.name "Ultraman"
-git config --global user.email  "1394466835@qq.com"
-
 ```
 
 ## Windows + WSL2(ubuntu)
@@ -153,12 +148,3 @@ export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}'):0
 ```
 
 ![image](https://xmchxup.github.io/cloudimg/20220921/image.3demx18juhy0.webp)
-
-## Jetbrains ideavim
-https://github.com/xmchxup/dotfiles/
-
-
-## Vscode
-
-keybindings.json
-

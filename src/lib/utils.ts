@@ -106,6 +106,10 @@ export const getDateAgoFormat = (input: string | number) => {
 
   const diffInMs = today.getTime() - d.getTime();
 
+  if (diffInMs < 0) {
+    return "just now";
+  }
+
   const days = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
   const hours = Math.floor(
     (diffInMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)

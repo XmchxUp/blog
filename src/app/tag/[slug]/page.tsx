@@ -11,7 +11,6 @@ interface TagPageProps {
 
 async function getPostsFromParams(params: Params) {
   const slug = decodeURIComponent(params.slug).toLowerCase();
-  console.log(slug);
   return posts.filter((post) => {
     if (post.draft) {
       return false;
@@ -24,6 +23,7 @@ async function getPostsFromParams(params: Params) {
 async function CategoryPage(props: TagPageProps) {
   const params = await props.params;
   const curPosts = await getPostsFromParams(params);
+
 
   return <PostsByYear title={`Tag: ${params.slug}`} posts={curPosts} />;
 }

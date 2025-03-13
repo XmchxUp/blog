@@ -1,0 +1,783 @@
+---
+category: "Technology"
+date: "2025-03-13 12:00"
+title: "RC-lua-resty-lrucache"
+description: "Lua-land LRU Cache based on LuaJIT FFI."
+tags: ["FOSS", "Backend Development", "OpenResty"]
+---
+
+[GitHub - openresty/lua-resty-lrucache: Lua-land LRU Cache based on LuaJIT FFI](https://github.com/openresty/lua-resty-lrucache)
+
+## Synopsis
+
+```lua
+-- file myapp.lua: example "myapp" module
+
+local _M = {}
+
+-- alternatively: local lrucache = require "resty.lrucache.pureffi"
+local lrucache = require "resty.lrucache"
+
+-- we need to initialize the cache on the lua module level so that
+-- it can be shared by all the requests served by each nginx worker process:
+local c, err = lrucache.new(200)  -- allow up to 200 items in the cache
+if not c then
+    error("failed to create the cache: " .. (err or "unknown"))
+end
+
+function _M.go()
+    c:set("dog", 32)
+    c:set("cat", 56)
+    ngx.say("dog: ", c:get("dog"))
+    ngx.say("cat: ", c:get("cat"))
+
+    c:set("dog", { age = 10 }, 0.1)  -- expire in 0.1 sec
+    c:delete("dog")
+
+    c:flush_all()  -- flush all the cached data
+end
+
+return _M
+```
+
+README中的描述很详细，说明，使用场景建议，API接口文档等等。
+
+## Description
+
+This library implements a simple LRU cache for [OpenResty](https://openresty.org/ "https://openresty.org") and the [ngx_lua](https://github.com/openresty/lua-nginx-module "https://github.com/openresty/lua-nginx-module") module.
+
+This cache also supports expiration time.
+
+The LRU cache resides completely in the Lua VM and is subject to Lua GC. As such, do not expect it to get shared across the OS process boundary. The upside is that you can cache arbitrary complex Lua values (such as deep nested Lua tables) without the overhead of serialization (as with `ngx_lua`'s [shared dictionary API](https://github.com/openresty/lua-nginx-module#lua_shared_dict "https://github.com/openresty/lua-nginx-module#lua_shared_dict")). The downside is that your cache is always limited to the current OS process (i.e. the current Nginx worker process). It does not really make much sense to use this library in the context of [init_by_lua](https://github.com/openresty/lua-nginx-module#lua_shared_dict "https://github.com/openresty/lua-nginx-module#lua_shared_dict") because the cache will not get shared by any of the worker processes (unless you just want to "warm up" the cache with predefined items which will get inherited by the workers via `fork()`).
+
+This library offers two different implementations in the form of two classes: `resty.lrucache` and `resty.lrucache.pureffi`. Both implement the same API. The only difference is that the latter is a pure FFI implementation that also implements an FFI-based hash table for the cache lookup, while the former uses native Lua tables.
+
+If the cache hit rate is relatively high, you should use the `resty.lrucache` class which is faster than `resty.lrucache.pureffi`.
+
+However, if the cache hit rate is relatively low and there can be a _lot_ of variations of keys inserted into and removed from the cache, then you should use the `resty.lrucache.pureffi` instead, because Lua tables are not good at removing keys frequently. You would likely see the `resizetab` function call in the LuaJIT runtime being very hot in [on-CPU flame graphs](https://github.com/openresty/stapxx#lj-lua-stacks "https://github.com/openresty/stapxx#lj-lua-stacks") if you use the `resty.lrucache` class instead of `resty.lrucache.pureffi` in such a use case.
+
+## Lua Table方式的实现
+
+### DQueue 实现
+
+```lua
+-- queue data types
+--
+-- this queue is a double-ended queue and the first node
+-- is reserved for the queue itself.
+-- the implementation is mostly borrowed from nginx's ngx_queue_t data
+-- structure.
+
+ffi.cdef[[
+    typedef struct lrucache_queue_s  lrucache_queue_t;
+    struct lrucache_queue_s {
+        double             expire;  /* in seconds */
+        lrucache_queue_t  *prev;
+        lrucache_queue_t  *next;
+        uint32_t           user_flags;
+    };
+]]
+```
+
+#### init  
+
+多预留一个size，用于常见的dummy head设计，方便操作。
+
+```lua
+local function queue_init(size)
+    if not size then
+        size = 0
+    end
+    local q = ffi_new(queue_arr_type, size + 1)
+    ffi_fill(q, ffi_sizeof(queue_type, size + 1), 0)
+
+    if size == 0 then
+        q[0].prev = q
+        q[0].next = q
+
+    else
+        local prev = q[0]
+        for i = 1, size do
+          local e = q + i
+          e.user_flags = 0
+          prev.next = e
+          e.prev = prev
+          prev = e
+        end
+
+        local last = q[size]
+        last.next = q
+        q[0].prev = last
+    end
+
+    return q
+end
+```
+
+#### insert
+
+```lua
+local function queue_insert_tail(h, x)
+    local last = h[0].prev
+    x.prev = last
+    last.next = x
+    x.next = h
+    h[0].prev = x
+end
+
+local function queue_insert_head(h, x)
+    x.next = h[0].next
+    x.next.prev = x
+    x.prev = h
+    h[0].next = x
+end
+```
+
+#### is_empty
+
+```lua
+local function queue_is_empty(q)
+    -- print("q: ", tostring(q), "q.prev: ", tostring(q), ": ", q == q.prev)
+    return q == q[0].prev
+end
+```
+
+#### remove
+
+```lua
+
+local function queue_remove(x)
+    local prev = x.prev
+    local next = x.next
+
+    next.prev = prev
+    prev.next = next
+
+    -- for debugging purpose only:
+    x.prev = NULL
+    x.next = NULL
+end
+
+```
+
+### Cache实现
+
+#### new
+
+free_queue: 相当于可用的cache容量，容量同size，先创建出来size个节点。  
+cache_queue: 默认没有节点。
+
+```lua
+function _M.new(size)
+    if size < 1 then
+        return nil, "size too small"
+    end
+
+    local self = {
+        hasht = {},
+        free_queue = queue_init(size),
+        cache_queue = queue_init(),
+        key2node = {},
+        node2key = {},
+        num_items = 0,
+        max_items = size,
+    }
+    setmetatable(self, mt)
+    return self
+end
+```
+
+#### count & capacity
+
+```lua
+function _M.count(self)
+    return self.num_items
+end
+
+
+function _M.capacity(self)
+    return self.max_items
+end
+```
+
+#### set
+
+```lua
+function _M.set(self, key, value, ttl, flags)
+	-- 将键值对放到hasht table中
+    local hasht = self.hasht
+    hasht[key] = value
+
+	
+    local key2node = self.key2node
+    local node = key2node[key]
+    -- 如果当前key没有对应的node，则从free_queue中取，如果free_queue为空，则从cache_queue中执行LRU驱逐节点，
+    if not node then
+        local free_queue = self.free_queue
+        local node2key = self.node2key
+
+        if queue_is_empty(free_queue) then
+            -- evict the least recently used key
+            -- assert(not queue_is_empty(self.cache_queue))
+            node = queue_last(self.cache_queue)
+
+            local oldkey = node2key[ptr2num(node)]
+            -- print(key, ": evicting oldkey: ", oldkey, ", oldnode: ",
+            --         tostring(node))
+            if oldkey then
+                hasht[oldkey] = nil
+                key2node[oldkey] = nil
+            end
+
+        else
+            -- take a free queue node
+            node = queue_head(free_queue)
+            -- only add count if we are not evicting
+            self.num_items = self.num_items + 1
+            -- print(key, ": get a new free node: ", tostring(node))
+        end
+
+        node2key[ptr2num(node)] = key
+        key2node[key] = node
+    end
+	-- 将相应的node移至head，设置expire, user_flags
+    queue_remove(node)
+    queue_insert_head(self.cache_queue, node)
+
+    if ttl then
+        node.expire = ngx_now() + ttl
+    else
+        node.expire = -1
+    end
+
+    if type(flags) == "number" and flags >= 0 then
+        node.user_flags = flags
+    else
+        node.user_flags = 0
+    end
+end
+```
+
+#### get
+
+```lua
+function _M.get(self, key)
+	-- 直接先从hasht中判断是否存在Key
+    local hasht = self.hasht
+    local val = hasht[key]
+    if val == nil then
+        return nil
+    end
+
+	-- 将对应的node移到头部，并返回相应的expire信息
+    local node = self.key2node[key]
+
+    -- print(key, ": moving node ", tostring(node), " to cache queue head")
+    local cache_queue = self.cache_queue
+    queue_remove(node)
+    queue_insert_head(cache_queue, node)
+
+    if node.expire >= 0 and node.expire < ngx_now() then
+        -- print("expired: ", node.expire, " > ", ngx_now())
+        return nil, val, node.user_flags
+    end
+
+    return val, nil, node.user_flags
+end
+```
+
+#### delete
+
+```lua
+function _M.delete(self, key)
+    self.hasht[key] = nil
+
+    local key2node = self.key2node
+    local node = key2node[key]
+
+    if not node then
+        return false
+    end
+
+    key2node[key] = nil
+    self.node2key[ptr2num(node)] = nil
+
+    queue_remove(node)
+    queue_insert_tail(self.free_queue, node)
+    self.num_items = self.num_items - 1
+    return true
+end
+
+
+
+```
+
+#### get_keys & flush_all
+
+```lua
+function _M.get_keys(self, max_count, res)
+    if not max_count or max_count == 0 then
+        max_count = self.num_items
+    end
+
+    if not res then
+        res = new_tab(max_count + 1, 0) -- + 1 for trailing hole
+    end
+
+    local cache_queue = self.cache_queue
+    local node2key = self.node2key
+
+    local i = 0
+    local node = queue_head(cache_queue)
+
+    while node ~= cache_queue do
+        if i >= max_count then
+            break
+        end
+
+        i = i + 1
+        res[i] = node2key[ptr2num(node)]
+        node = node.next
+    end
+
+    res[i + 1] = nil
+
+    return res
+end
+
+
+function _M.flush_all(self)
+    tb_clear(self.hasht)
+    tb_clear(self.node2key)
+    tb_clear(self.key2node)
+
+    self.num_items = 0
+
+    local cache_queue = self.cache_queue
+    local free_queue = self.free_queue
+
+    -- splice the cache_queue into free_queue
+    if not queue_is_empty(cache_queue) then
+        local free_head = free_queue[0]
+        local free_last = free_head.prev
+
+        local cache_head = cache_queue[0]
+        local cache_first = cache_head.next
+        local cache_last = cache_head.prev
+
+        free_last.next = cache_first
+        cache_first.prev = free_last
+
+        cache_last.next = free_head
+        free_head.prev = cache_last
+
+        cache_head.next = cache_queue
+        cache_head.prev = cache_queue
+    end
+end
+
+```
+
+## Pure FFI实现
+
+```lua
+  This module implements a key/value cache store. We adopt LRU as our
+replace/evict policy. Each key/value pair is tagged with a Time-to-Live (TTL);
+from user's perspective, stale pairs are automatically removed from the cache.
+
+Why FFI
+-------
+  In Lua, expression "table[key] = nil" does not *PHYSICALLY* remove the value
+associated with the key; it just set the value to be nil! So the table will
+keep growing with large number of the key/nil pairs which will be purged until
+resize() operator is called.
+
+  This "feature" is terribly ill-suited to what we need. Therefore we have to
+rely on FFI to build a hash-table where any entry can be physically deleted
+immediately.
+
+Under the hood:
+--------------
+  In concept, we introduce three data structures to implement the cache store:
+    1. key/value vector for storing keys and values.
+    2. a queue to mimic the LRU.
+    3. hash-table for looking up the value for a given key.
+
+  Unfortunately, efficiency and clarity usually come at each other cost. The
+data strucutres we are using are slightly more complicated than what we
+described above.
+
+   o. Lua does not have efficient way to store a vector of pair. So, we use
+      two vectors for key/value pair: one for keys and the other for values
+      (_M.key_v and _M.val_v, respectively), and i-th key corresponds to
+      i-th value.
+
+      A key/value pair is identified by the "id" field in a "node" (we shall
+      discuss node later)
+
+    o. The queue is nothing more than a doubly-linked list of "node" linked via
+        lrucache_pureffi_queue_s::{next|prev} fields.
+
+    o. The hash-table has two parts:
+        - the _M.bucket_v[] a vector of bucket, indiced by hash-value, and
+        - a bucket is a singly-linked list of "node" via the
+          lrucache_pureffi_queue_s::conflict field.
+
+      A key must be a string, and the hash value of a key is evaluated by:
+      crc32(key-cast-to-pointer) % size(_M.bucket_v).
+      We mandate size(_M.bucket_v) being a power-of-two in order to avoid
+      expensive modulo operation.
+
+    At the heart of the module is an array of "node" (of type
+    lrucache_pureffi_queue_s). A node:
+      - keeps the meta-data of its corresponding key/value pair
+        (embodied by the "id", and "expire" field);
+      - is a part of LRU queue (embodied by "prev" and "next" fields);
+      - is a part of hash-table (embodied by the "conflict" field).
+
+```
+
+### new
+
+```lua
+
+-- "size" specifies the maximum number of entries in the LRU queue, and the
+-- "load_factor" designates the 'load factor' of the hash-table we are using
+-- internally. The default value of load-factor is 0.5 (i.e. 50%); if the
+-- load-factor is specified, it will be clamped to the range of [0.1, 1](i.e.
+-- if load-factor is greater than 1, it will be saturated to 1, likewise,
+-- if load-factor is smaller than 0.1, it will be clamped to 0.1).
+function _M.new(size, load_factor)
+    if size < 1 then
+        return nil, "size too small"
+    end
+
+    -- Determine bucket size, which must be power of two.
+    local load_f = load_factor
+    if not load_factor then
+        load_f = 0.5
+    elseif load_factor > 1 then
+        load_f = 1
+    elseif load_factor < 0.1 then
+        load_f = 0.1
+    end
+
+    local bs_min = size / load_f
+    -- The bucket_sz *MUST* be a power-of-two. See the hash_string().
+    local bucket_sz = 1
+    repeat
+        bucket_sz = bucket_sz * 2
+    until bucket_sz >= bs_min
+
+    local self = {
+        size = size,
+        bucket_sz = bucket_sz,
+        free_queue = queue_init(size),
+        cache_queue = queue_init(0),
+        node_v = nil,
+        key_v = new_tab(size, 0),
+        val_v = new_tab(size, 0),
+        bucket_v = ffi_new(int_array_t, bucket_sz),
+        num_items = 0,
+    }
+    -- "node_v" is an array of all the nodes used in the LRU queue. Exprpession
+    -- node_v[i] evaluates to the element of ID "i".
+    self.node_v = self.free_queue
+
+    -- Allocate the array-part of the key_v, val_v, bucket_v.
+    --local key_v = self.key_v
+    --local val_v = self.val_v
+    --local bucket_v = self.bucket_v
+    ffi_fill(self.bucket_v, ffi_sizeof(int_t, bucket_sz), 0)
+
+    return setmetatable(self, mt)
+end
+```
+
+可以看到这里实现了hash table bucket_v，用的是 C中的int array 配合node_v C定义的链表解决冲突。
+
+这里queue的定义时候用conflict记录下一个的 node的id
+
+```c
+    /* A lrucache_pureffi_queue_s node hook together three data structures:
+     *   o. the key/value store as embodied by the "id" (which is in essence the
+     *      indentifier of key/pair pair) and the "expire" (which is a metadata
+     *      of the corresponding key/pair pair).
+     *   o. The LRU queue via the prev/next fields.
+     *   o. The hash-tabble as embodied by the "conflict" field.
+     */
+    typedef struct lrucache_pureffi_queue_s  lrucache_pureffi_queue_t;
+    struct lrucache_pureffi_queue_s {
+        /* Each node is assigned a unique ID at construction time, and the
+         * ID remain immutatble, regardless the node is in active-list or
+         * free-list. The queue header is assigned ID 0. Since queue-header
+         * is a sentinel node, 0 denodes "invalid ID".
+         *
+         * Intuitively, we can view the "id" as the identifier of key/value
+         * pair.
+         */
+        int                        id;
+
+        /* The bucket of the hash-table is implemented as a singly-linked list.
+         * The "conflict" refers to the ID of the next node in the bucket.
+         */
+        int                        conflict;
+
+        uint32_t                   user_flags;
+
+        double                     expire;  /* in seconds */
+
+        lrucache_pureffi_queue_t  *prev;
+        lrucache_pureffi_queue_t  *next;
+    };
+```
+
+这样做的好处就是不同于之前的Lua table管理方式，之前需要用3个纯lua table，现在需要依赖两个LuaJIT提供的table，避免动态扩容操作。
+
+```lua
+local new_tab
+do
+    local ok
+    ok, new_tab = pcall(require, "table.new")
+    if not ok then
+        new_tab = function(narr, nrec) return {} end
+    end
+end
+```
+
+### set
+
+这里在找node时候，就得使用自己实现对hash table的搜索算法。
+
+```lua
+function _M.set(self, key, value, ttl, flags)
+    if type(key) ~= "string" then
+        key = tostring(key)
+    end
+
+    local node_id = find_key(self, key)
+    local node
+    if not node_id then
+        local free_queue = self.free_queue
+        if queue_is_empty(free_queue) then
+            -- evict the least recently used key
+            -- assert(not queue_is_empty(self.cache_queue))
+            node = queue_last(self.cache_queue)
+            remove_key(self, self.key_v[node.id])
+        else
+            -- take a free queue node
+            node = queue_head(free_queue)
+            -- print(key, ": get a new free node: ", tostring(node))
+        end
+
+        -- insert the key
+        insert_key(self, key, value, node)
+    else
+        node = self.node_v + node_id
+        self.val_v[node_id] = value
+    end
+
+    queue_remove(node)
+    queue_insert_head(self.cache_queue, node)
+
+    if ttl then
+        node.expire = ngx_now() + ttl
+    else
+        node.expire = -1
+    end
+
+    if type(flags) == "number" and flags >= 0 then
+        node.user_flags = flags
+
+    else
+        node.user_flags = 0
+    end
+end
+
+--[[ Bind the key/val with the given node, and insert the node into the Hashtab.
+    NOTE: this function does not touch any queue
+]]
+local function insert_key(self, key, val, node)
+    -- Bind the key/val with the node
+    local node_id = node.id
+    self.key_v[node_id] = key
+    self.val_v[node_id] = val
+
+    -- Insert the node into the hash-table
+    local key_hash = hash_string(self, key)
+    local bucket_v = self.bucket_v
+    node.conflict = bucket_v[key_hash]
+    bucket_v[key_hash] = node_id
+    self.num_items = self.num_items + 1
+end
+
+
+-- Search the node associated with the key in the bucket, if found returns
+-- the the id of the node, and the id of its previous node in the conflict list.
+-- The "bucket_hdr_id" is the ID of the first node in the bucket
+local function _find_node_in_bucket(key, key_v, node_v, bucket_hdr_id)
+    if bucket_hdr_id ~= 0 then
+        local prev = 0
+        local cur = bucket_hdr_id
+
+        while cur ~= 0 and key_v[cur] ~= key do
+            prev = cur
+            cur = node_v[cur].conflict
+        end
+
+        if cur ~= 0 then
+            return cur, prev
+        end
+    end
+end
+
+
+-- Return the node corresponding to the key/val.
+local function find_key(self, key)
+    local key_hash = hash_string(self, key)
+    return _find_node_in_bucket(key, self.key_v, self.node_v,
+                                self.bucket_v[key_hash])
+end
+
+```
+
+### get
+
+```lua
+
+
+function _M.get(self, key)
+    if type(key) ~= "string" then
+        key = tostring(key)
+    end
+
+    local node_id = find_key(self, key)
+    if not node_id then
+        return nil
+    end
+
+    -- print(key, ": moving node ", tostring(node), " to cache queue head")
+    local cache_queue = self.cache_queue
+    local node = self.node_v + node_id
+    queue_remove(node)
+    queue_insert_head(cache_queue, node)
+
+    local expire = node.expire
+    if expire >= 0 and expire < ngx_now() then
+        -- print("expired: ", node.expire, " > ", ngx_now())
+        return nil, self.val_v[node_id], node.user_flags
+    end
+
+    return self.val_v[node_id], nil, node.user_flags
+end
+
+```
+
+### delete
+
+```lua
+function _M.delete(self, key)
+    if type(key) ~= "string" then
+        key = tostring(key)
+    end
+
+    local node_id = remove_key(self, key);
+    if not node_id then
+        return false
+    end
+
+    local node = self.node_v + node_id
+    queue_remove(node)
+    queue_insert_tail(self.free_queue, node)
+    return true
+end
+
+
+--[[ This function tries to
+  1. Remove the given key and the associated value from the key/value store,
+  2. Remove the entry associated with the key from the hash-table.
+
+  NOTE: all queues remain intact.
+
+  If there was a node bound to the key/val, return that node; otherwise,
+  nil is returned.
+]]
+local function remove_key(self, key)
+    local key_v = self.key_v
+    local val_v = self.val_v
+    local node_v = self.node_v
+    local bucket_v = self.bucket_v
+
+    local key_hash = hash_string(self, key)
+    local cur, prev =
+        _find_node_in_bucket(key, key_v, node_v, bucket_v[key_hash])
+
+    if cur then
+        -- In an attempt to make key and val dead.
+        key_v[cur] = nil
+        val_v[cur] = nil
+        self.num_items = self.num_items - 1
+
+        -- Remove the node from the hash table
+        local next_node = node_v[cur].conflict
+        if prev ~= 0 then
+            node_v[prev].conflict = next_node
+        else
+            bucket_v[key_hash] = next_node
+        end
+        node_v[cur].conflict = 0
+
+        return cur
+    end
+end
+
+```
+
+### get_keys & flush_all
+
+```lua
+function _M.get_keys(self, max_count, res)
+    if not max_count or max_count == 0 then
+        max_count = self.num_items
+    end
+
+    if not res then
+        res = new_tab(max_count + 1, 0) -- + 1 for trailing hole
+    end
+
+    local cache_queue = self.cache_queue
+    local key_v = self.key_v
+
+    local i = 0
+    local node = queue_head(cache_queue)
+
+    while node ~= cache_queue do
+        if i >= max_count then
+            break
+        end
+
+        i = i + 1
+        res[i] = key_v[node.id]
+        node = node.next
+    end
+
+    res[i + 1] = nil
+
+    return res
+end
+
+
+function _M.flush_all(self)
+    local cache_queue = self.cache_queue
+    local key_v = self.key_v
+
+    local node = queue_head(cache_queue)
+
+    while node ~= cache_queue do
+        local key = key_v[node.id]
+        node = node.next
+        _M.delete(self, key)
+    end
+end
+
+```

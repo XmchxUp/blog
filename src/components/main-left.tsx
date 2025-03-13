@@ -4,7 +4,7 @@ import Link from "next/link";
 import AsideCard from "./aside-card";
 import { posts } from "#site/content";
 import {
-  getAllTags,
+  getAllTags as getAllTag,
   getAllCategory,
   sortByCount,
   getArchives as getAllArchive,
@@ -12,7 +12,7 @@ import {
 } from "@/lib/utils";
 
 const categories = getAllCategory(posts);
-const tags = getAllTags(posts);
+const tags = getAllTag(posts);
 const archives = getAllArchive(posts);
 
 function MainLeftAside() {

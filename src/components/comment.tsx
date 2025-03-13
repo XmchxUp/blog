@@ -129,9 +129,7 @@ const CustomWalineComment = ({ postPath }: WalineCommentProps) => {
   };
 
   const handleReplyTo = (comment: WalineComment) => {
-    // console.log(isWalineRootComment(comment));
     const rootComment = findRootComment(comment);
-    // console.log(rootComment.objectId, comment.nick, comment.objectId);
     setFormData((prev) => ({
       ...prev,
       rid: rootComment.objectId,
@@ -146,9 +144,9 @@ const CustomWalineComment = ({ postPath }: WalineCommentProps) => {
     return isWalineRootComment(currentComment)
       ? currentComment
       : findRootComment(
-          comments.find((c) => c.objectId === currentComment.pid) ||
-            currentComment
-        );
+        comments.find((c) => c.objectId === currentComment.pid) ||
+        currentComment
+      );
   };
 
   const isWalineRootComment = (

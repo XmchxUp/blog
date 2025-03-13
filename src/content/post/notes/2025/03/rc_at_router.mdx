@@ -413,6 +413,11 @@ lib/resty/router
 
 可以看到主要还是用lua来调用并包装提供的clib库
 
+
+> 后面学习了OpenResty/LuaJIT，大概猜测这里封装的用途，是为了JIT。
+> 在Lua里可以用CFunction直接调用C代码，但是这种还是会被LuaJIT解析器执行，不会走JIT逻辑，
+> 第二种就是使用LuaJIT提供的FFI能力调用，封装，则可以走JIT逻辑。
+
 主要定义导出的c函数都在此目录下
 
 ```sh

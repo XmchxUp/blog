@@ -58,7 +58,7 @@ function MainRightAside() {
         {/* Wakatime */}
         <AsideCard>
           <div className="flex flex-col space-y-1.5 p-6 pb-2 pt-4">
-            <h3 className="tracking-tight text-md font-normal">Coding Stats</h3>
+            <Link href="https://wakatime.com/@Tesla" className="tracking-tight text-md font-normal">Coding Stats</Link>
           </div>
           <div className="p-6 flex flex-col pt-2 gap-2">
             <WakaTimeStats />

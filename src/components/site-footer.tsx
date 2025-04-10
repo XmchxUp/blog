@@ -1,11 +1,14 @@
 import { siteConfig } from "@/config/site";
 
 function SiteFooter() {
+
+  const currentYear = new Date().getFullYear();
+
   return (
     <footer className="h-16 bg-background text-secondary-foreground print:hidden">
       <div className="container mx-auto h-full flex flex-col md:flex-row items-center justify-center md:justify-between gap-1">
         <span className="text-sm">
-          © 2024&nbsp;
+          © {currentYear}&nbsp;
           <a
             rel="author noopener"
             className="hover:underline text-primary"

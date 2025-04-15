@@ -1,0 +1,141 @@
+---
+category: "Technology"
+date: "2025-04-15 12:00"
+title: "Running WebAssembly on Kubernetes with KubeEdge + WasmEdge"
+description: ""
+tags: ["Maintenance", "WASM"]
+---
+
+## Running WebAssembly on Kubernetes with KubeEdge + WasmEdge
+
+Inspired by the CNCF blog series on [WebAssembly on Kubernetes](https://www.cncf.io/blog/2024/03/12/webassembly-on-kubernetes-from-containers-to-wasm-part-01/), I’ve been experimenting with running Wasm workloads in a hybrid Kubernetes + KubeEdge setup. Below is a summary of my setup process and key findings.
+
+### References
+
+- 📘 [WebAssembly on Kubernetes: from containers to Wasm (Part 1)](https://www.cncf.io/blog/2024/03/12/webassembly-on-kubernetes-from-containers-to-wasm-part-01/)
+- 📘 [WebAssembly on Kubernetes: the practice guide (Part 2)](https://www.cncf.io/blog/2024/03/28/webassembly-on-kubernetes-the-practice-guide-part-02/)
+- 📘 [KubeEdge + WasmEdge Deployment Guide](https://wasmedge.org/docs/develop/deploy/kubernetes/kubedge)
+---
+
+## ✅ Setup Steps
+
+### Step 1: Initialize Kubernetes
+
+I set up a standard `kubeadm` cluster with a control plane node (`master`) and an edge node (`ubuntu`).
+
+### Step 2: Initialize KubeEdge
+
+Followed the KubeEdge guide to deploy `cloudcore` and `edgecore`. Once everything was connected, I could schedule pods on the edge node.
+
+### Step 3: Install `wasmedge` + `crun` on Edge Node
+
+[Install and uninstall WasmEdge | WasmEdge Developer Guides](https://wasmedge.org/docs/start/install/#generic-linux-and-macos)  
+[Deploy with crun | WasmEdge Developer Guides](https://wasmedge.org/docs/develop/deploy/oci-runtime/crun/)
+
+Update `/etc/containerd/config.toml` to use `crun` as the runtime:
+
+```sh
+--- /etc/containerd/config.toml	2021-12-17 07:54:18.238425163 +0000
++++ /etc/containerd/config.toml.update	2021-12-17 07:51:37.978331813 +0000
+@@ -70,7 +70,7 @@
+       max_conf_num = 1
+ 
+     [plugins."io.containerd.grpc.v1.cri".containerd]
+-      default_runtime_name = "runc"
++      default_runtime_name = "crun"
+       disable_snapshot_annotations = true
+       discard_unpacked_layers = false
+       no_pivot = false
+@@ -89,17 +89,17 @@
+ 
+       [plugins."io.containerd.grpc.v1.cri".containerd.runtimes]
+ 
+-        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]
++        [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.crun]
+           base_runtime_spec = ""
+           container_annotations = []
+-          pod_annotations = []
++          pod_annotations = ["*.wasm.*", "wasm.*", "module.wasm.image/*", "*.module.wasm.image", "module.wasm.image/variant.*"]
+           privileged_without_host_devices = false
+           runtime_engine = ""
+           runtime_root = ""
+           runtime_type = "io.containerd.runc.v2"
+ 
+-          [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc.options]
+-            BinaryName = ""
++          [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.crun.options]
++            BinaryName = "crun"
+             CriuImagePath = ""
+             CriuPath = ""
+             CriuWorkPath = ""
+@@ -154,7 +154,7 @@
+ 
+   [plugins."io.containerd.runtime.v1.linux"]
+     no_shim = false
+-    runtime = "runc"
++    runtime = "crun"
+     runtime_root = ""
+     shim = "containerd-shim"
+     shim_debug = false
+```
+
+`sudo systemctl restart containerd`
+
+---
+
+## 🚀 Running a Wasm Pod
+
+Once the runtime and KubeEdge were in place, I deployed the `wasmedge/example-wasi` pod:
+
+```sh
+☁  crun [main] sudo kubectl get pod -A -o wide
+NAMESPACE     NAME                             READY   STATUS    RESTARTS   AGE    IP              NODE     NOMINATED NODE   READINESS GATES
+kube-system   coredns-5d78c9869d-f6xgj         1/1     Running   0          121m   10.88.14.200    master   <none>           <none>
+kube-system   coredns-5d78c9869d-nfzmq         1/1     Running   0          121m   10.88.14.199    master   <none>           <none>
+kube-system   etcd-master                      1/1     Running   0          121m   192.168.0.124   master   <none>           <none>
+kube-system   kube-apiserver-master            1/1     Running   0          121m   192.168.0.124   master   <none>           <none>
+kube-system   kube-controller-manager-master   1/1     Running   0          121m   192.168.0.124   master   <none>           <none>
+kube-system   kube-proxy-hq58n                 1/1     Running   0          87m    192.168.0.119   ubuntu   <none>           <none>
+kube-system   kube-proxy-wcnp7                 1/1     Running   0          121m   192.168.0.124   master   <none>           <none>
+kube-system   kube-scheduler-master            1/1     Running   0          121m   192.168.0.124   master   <none>           <none>
+kubeedge      cloudcore-fcd7d6459-hnkrs        1/1     Running   0          106m   192.168.0.124   master   <none>           <none>
+kubeedge      edge-eclipse-mosquitto-vtfb7     1/1     Running   0          87m    192.168.0.119   ubuntu   <none>           <none>
+☁  crun [main] kubectl run -it --restart=Never wasi-demo --image=wasmedge/example-wasi:latest --annotations="module.wasm.image/variant=compat-smart" /wasi_example_main.wasm 50000000
+Random number: -475778716
+Random bytes: [64, 130, 250, 78, 240, 195, 201, 17, 52, 164, 232, 206, 155, 186, 51, 78, 89, 222, 145, 184, 146, 144, 250, 211, 178, 70, 129, 159, 37, 29, 76, 77, 233, 42, 26, 62, 171, 96, 168, 87, 47, 222, 219, 156, 182, 209, 95, 58, 180, 20, 55, 116, 252, 63, 9, 39, 133, 146, 157, 70, 22, 67, 67, 157, 154, 97, 45, 48, 205, 198, 253, 23, 154, 105, 57, 7, 7, 68, 201, 36, 73, 120, 200, 131, 255, 162, 185, 85, 44, 89, 42, 237, 112, 196, 70, 201, 223, 32, 162, 159, 179, 122, 74, 110, 230, 185, 185, 216, 162, 57, 246, 65, 156, 155, 70, 24, 23, 236, 155, 250, 70, 152, 135, 199, 65, 131, 255, 40]
+Printed from wasi: This is from a main function
+This is from a main function
+The env vars are as follows.
+PATH: /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+TERM: xterm
+HOSTNAME: wasi-demo
+KUBERNETES_SERVICE_HOST:
+KUBERNETES_SERVICE_PORT:
+HOME: /
+The args are as follows.
+/wasi_example_main.wasm
+50000000
+File content is This is in a file
+```
+
+---
+
+## ⚠️ Common Issues
+
+### ❌ `could not load libwasmedge.so.0`
+
+[crun and wasm example - could not load \`libwasmedge.so.0 · Issue #1046 · containers/crun](https://github.com/containers/crun/issues/1046)
+
+```sh
+OCI runtime create failed: could not load `libwasmedge.so.0`: ... No such file or directory
+```
+
+**Fix:** Make sure WasmEdge is installed and its libraries are in the system library path.
+
+```sh
+echo "/home/ubuntu/.wasmedge/lib" | sudo tee /etc/ld.so.conf.d/wasmedge.conf
+sudo ldconfig
+
+ls ~/.wasmedge/lib
+# libwasmedge.so  libwasmedge.so.0  libwasmedge.so.0.1.0
+```

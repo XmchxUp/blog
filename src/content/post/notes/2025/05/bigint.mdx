@@ -1,0 +1,283 @@
+---
+category: "Technology"
+date: "2025-05-29 12:00"
+title: "怎么实现BigInt支持无限精度？"
+description: ""
+tags: ["CS"]
+---
+
+## 案例
+
+```rust
+#[cfg(test)]
+mod test {
+
+    use ntest::{assert_false, assert_true};
+
+    use crate::assignments::assignment09::bigint::*;
+
+    #[test]
+    fn test_inf_prec_simple() {
+        // Basic
+        assert_eq!("00000000", format!("{}", BigInt::new(0)));
+        assert_eq!("ffffffff", format!("{}", BigInt::new(u32::MAX)));
+        assert_eq!("00bc4fdc", format!("{}", BigInt::new(12_341_212)));
+        assert_eq!("fffffed8", format!("{}", BigInt::new(4_294_967_000u32)));
+
+        // Add Basic
+        assert_eq!("00000001", format!("{}", BigInt::new(0) + BigInt::new(1)));
+
+        assert_eq!(
+            "0df655df",
+            format!("{}", BigInt::new(13_413) + BigInt::new(234_234_234))
+        );
+
+        assert_eq!(
+            "ffffff03",
+            format!("{}", BigInt::new(4_294_967_000u32) + BigInt::new(43))
+        );
+
+        // Sub Basic
+        assert_eq!("ffffffff", format!("{}", BigInt::new(0) - BigInt::new(1)));
+
+        assert_eq!(
+            "f20a12eb",
+            format!("{}", BigInt::new(13_413) - BigInt::new(234_234_234))
+        );
+
+        assert_eq!(
+            "fffffead",
+            format!("{}", BigInt::new(4_294_967_000u32) - BigInt::new(43))
+        );
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_inf_prec_panic() {
+        let _unused = BigInt::new_large(vec![]);
+    }
+
+    #[test]
+    fn test_inf_prec_complex() {
+        // Positive overflow
+        assert_eq!(
+            "0000000080000000",
+            format!("{}", BigInt::new(i32::MAX as u32) + BigInt::new(1))
+        );
+
+        // Negative overflow
+        assert_eq!(
+            "ffffffff7fffffff",
+            format!("{}", BigInt::new(i32::MIN as u32) - BigInt::new(1))
+        );
+
+        // Larger positive overflow
+        assert_eq!(
+            "00000000fffffffe00000000",
+            format!(
+                "{}",
+                BigInt::new_large(vec![i32::MAX as u32, 0])
+                    + BigInt::new_large(vec![i32::MAX as u32, 0])
+            )
+        );
+
+        // Smaller negative overflow
+        assert_eq!(
+            "ffffffff000000000119464a",
+            format!(
+                "{}",
+                BigInt::new_large(vec![i32::MIN as u32, 2_871_572])
+                    + BigInt::new_large(vec![i32::MIN as u32, 15_562_038])
+            )
+        );
+
+        // Truncate
+        assert_eq!(
+            "00000000",
+            format!(
+                "{}",
+                BigInt::new_large(vec![i32::MIN as u32, 2_871_572, 123_456])
+                    - BigInt::new_large(vec![i32::MIN as u32, 2_871_572, 123_456])
+            )
+        );
+
+        assert_eq!(
+            "ffffffff",
+            format!(
+                "{}",
+                BigInt::new_large(vec![i32::MIN as u32, 2_871_572, 123_456])
+                    - BigInt::new_large(vec![i32::MIN as u32, 2_871_572, 123_457])
+            )
+        );
+
+        // TODO: add a test case testing sign extension.
+    }
+}
+
+```
+
+## 实现
+
+```rust
+//! Big integer with infinite precision.
+
+use std::fmt;
+use std::iter::zip;
+use std::ops::*;
+
+/// An signed integer with infinite precision implemented with an "carrier" vector of `u32`s.
+///
+/// The vector is interpreted as a base 2^(32 * (len(carrier) - 1)) integer, where negative
+/// integers are represented in their [2's complement form](https://en.wikipedia.org/wiki/Two%27s_complement).
+///
+/// For example, the vector `vec![44,345,3]` represents the integer
+/// `44 * (2^32)^2 + 345 * (2^32) + 3`,
+/// and the vector `vec![u32::MAX - 5, u32::MAX - 7]` represents the integer
+/// `- (5 * 2^32 + 8)`
+///
+/// You will implement the `Add` and `Sub` trait for this type.
+///
+/// Unlike standard fix-sized intergers in Rust where overflow will panic, the carrier is extended
+/// to save the overflowed bit. On the contrary, if the precision is too much (e.g, vec![0,0] is
+/// used to represent 0, where `vec![0]` is sufficent), the carrier is truncated.
+///
+/// See [this section](https://en.wikipedia.org/wiki/Two%27s_complement#Arithmetic_operations) for a rouge guide on implementation,
+/// while keeping in mind that the carrier should be extended to deal with overflow.
+///
+/// The `sign_extension()`, `two_complement()`, and `truncate()` are non-mandatory helper methods.
+///
+/// For testing and debugging purposes, the `Display` trait is implemented for you, which shows the
+/// integer in hexadecimal form.
+#[derive(Debug, Clone)]
+pub struct BigInt {
+    /// The carrier for `BigInt`.
+    ///
+    /// Note that the carrier should always be non-empty.
+    pub carrier: Vec<u32>,
+}
+
+impl BigInt {
+    /// Create a new `BigInt` from a `usize`.
+    pub fn new(n: u32) -> Self {
+        Self { carrier: vec![n] }
+    }
+
+    /// Creates a new `BigInt` from a `Vec<u32>`.
+    ///
+    /// # Panic
+    ///
+    /// Panics if `carrier` is empty.
+    pub fn new_large(carrier: Vec<u32>) -> Self {
+        assert!(!carrier.is_empty());
+        Self { carrier }.truncate()
+    }
+}
+
+const SIGN_MASK: u32 = 1 << 31;
+
+impl BigInt {
+    /// Extend `self` to `len` bits.
+    fn sign_extension(&self, len: usize) -> Self {
+        if len <= self.carrier.len() {
+            return self.clone();
+        }
+        let ext_len = len - self.carrier.len();
+        let ext_val = if self.carrier[0] & SIGN_MASK == 0 {
+            0
+        } else {
+            u32::MAX
+        };
+
+        let mut new_carrier = vec![ext_val; ext_len];
+        new_carrier.extend(self.carrier.clone());
+
+        BigInt {
+            carrier: new_carrier,
+        }
+    }
+
+    /// Compute the two's complement of `self`.
+    fn two_complement(&self) -> Self {
+        let mut carry = 1;
+        let mut new_carrier = Vec::new();
+        for &x in self.carrier.iter().rev() {
+            let sum = (!x) as u64 + carry as u64;
+            let digit = (sum % (1u64 << 32)) as u32;
+            carry = (sum >> 32) as u32;
+            new_carrier.push(digit);
+        }
+        if carry == 1 {
+            BigInt { carrier: vec![0] }
+        } else {
+            new_carrier.reverse();
+            BigInt {
+                carrier: new_carrier,
+            }
+        }
+    }
+
+    /// Truncate a `BigInt` to the minimum length.
+    fn truncate(&self) -> Self {
+        let mut i = 0;
+        while i < self.carrier.len() - 1 {
+            let first = self.carrier[i];
+            let second = self.carrier[i + 1];
+            // Remove leading 0s if next MSB is 0, or u32::MAX if next MSB is 1
+            if (first == 0 && (second & SIGN_MASK) == 0)
+                || (first == u32::MAX && (second & SIGN_MASK) != 0)
+            {
+                i += 1;
+            } else {
+                break;
+            }
+        }
+        BigInt {
+            carrier: self.carrier[i..].to_vec(),
+        }
+    }
+}
+
+impl Add for BigInt {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        let max_len = self.carrier.len().max(rhs.carrier.len());
+        // Extend to max_len + 1 to handle potential overflow
+        let a = self.sign_extension(max_len + 1);
+        let b = rhs.sign_extension(max_len + 1);
+        let mut carry = 0;
+        let mut sum_carrier = Vec::new();
+        // Add digits from least significant to most significant
+        for i in (0..max_len + 1).rev() {
+            let sum = a.carrier[i] as u64 + b.carrier[i] as u64 + carry as u64;
+            let digit = (sum % (1u64 << 32)) as u32;
+            carry = (sum >> 32) as u32;
+            sum_carrier.push(digit);
+        }
+        sum_carrier.reverse(); // Convert back to big-endian
+        BigInt {
+            carrier: sum_carrier,
+        }
+        .truncate()
+    }
+}
+
+impl Sub for BigInt {
+    type Output = Self;
+
+    fn sub(self, rhs: Self) -> Self::Output {
+        self + rhs.two_complement()
+    }
+}
+
+impl fmt::Display for BigInt {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        // Hex formatting so that each u32 can be formatted independently.
+        for i in self.carrier.iter() {
+            write!(f, "{:08x}", i)?;
+        }
+        Ok(())
+    }
+}
+
+```

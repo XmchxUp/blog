@@ -17,7 +17,7 @@ const CATEGORY_COUNT = 5;
 
 function MainLeftAside() {
   return (
-    <aside className="-order-1 col-span-1 hidden md:block">
+    <aside className="-order-1 hidden md:block">
       <div className="flex flex-col gap-4 w-full sticky top-3 lg:top-4">
         {/* Profile Card */}
         <AsideCard className="pt-6 px-2">

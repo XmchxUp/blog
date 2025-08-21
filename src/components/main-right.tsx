@@ -15,13 +15,10 @@ const latestPosts = sortPosts(posts)
   .slice(0, 5);
 
 function MainRightAside() {
-
-
   const [recentComments, setRecentComments] = useState<RecentCommentData[]>([]);
   const [loadRecentCommentError, setLoadRecentCommentError] =
     useState<boolean>(false);
   const [loadingComments, setLoadingComments] = useState<boolean>(true);
-
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -53,7 +50,7 @@ function MainRightAside() {
   };
 
   return (
-    <aside className="order-1 col-span-1 hidden lg:block">
+    <aside className="order-1 hidden lg:block">
       <div className="flex flex-col gap-4 w-full sticky top-4">
         {/* Wakatime */}
         <AsideCard>

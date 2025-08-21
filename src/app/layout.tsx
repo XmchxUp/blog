@@ -35,9 +35,14 @@ export default function RootLayout({
         <BaseProvider>
           <div className="min-h-screen flex flex-col bg-gradient-to-b from-background-top to-background-bottom">
             <SiteHeader />
-            <main className="container mx-auto py-4 md:py-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 flex-grow flex-shrink">
-              <div className="col-span-2 order-0">{children}</div>
+            <main className="w-full mx-auto py-4 md:py-8
+                 grid grid-cols-1
+                 md:grid-cols-[220px_minmax(0,1fr)]
+                 lg:grid-cols-[260px_minmax(0,1fr)_320px]
+                 gap-6
+                 max-w-[1600px] px-4">
               <MainLeftAside />
+              {children}
               <MainRightAside />
             </main>
             <SiteFooter />

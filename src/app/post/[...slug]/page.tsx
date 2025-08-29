@@ -88,7 +88,7 @@ async function PostPage(props: PostPageProps) {
           <p className="text-muted-foreground text-sm flex flex-row gap-2">
             <time>{formatDate(post.date)}</time>
             <span> · </span>
-            <a className="hover:underline" href={`/category/${post.category}`}>
+            <a className="hover:underline" href={`/categories/${post.category}`}>
               {post.category}
             </a>
           </p>

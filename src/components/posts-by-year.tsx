@@ -45,7 +45,7 @@ function PostsByYear({ title, posts }: PostsByYearProp) {
                         <p className="text-muted-foreground text-sm flex-row basis-auto gap-2 line-clamp-1 truncate">
                           <time>{formatDate(post.date)}</time>
                           <span> · </span>
-                          <Link href={`/category/${post.category}`}>
+                          <Link href={`/categories/${post.category}`}>
                             {post.category}
                           </Link>
                         </p>

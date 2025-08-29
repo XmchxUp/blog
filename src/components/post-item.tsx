@@ -57,7 +57,7 @@ function MainPostItem({
           <Link
             title={category}
             className="hover:underline"
-            href={`/category/${category}`}
+            href={`/categories/${category}`}
           >
             {category}
           </Link>

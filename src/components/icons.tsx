@@ -77,4 +77,16 @@ export const Icons = {
       ></path>
     </svg>
   ),
+  thinking: (props: IconProps) => (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      viewBox="0 0 24 24"
+      width="24"
+      height="24"
+    >
+      <path d="M9 21h6v-1.5H9V21zm3-19C7.48 2 4 5.48 4 10c0 2.38 1.19 4.47 3 5.74V18c0 .55.45 1 1 1h8c.55 0 1-.45 1-1v-2.26c1.81-1.27 3-3.36 3-5.74 0-4.52-3.48-8-8-8zm2.5 13h-5v-1.5h5V15zm0-3h-5v-1.5h5V12zm0-3h-5V7.5h5V9z" />
+    </svg>
+  ),
 };

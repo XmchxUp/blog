@@ -7,6 +7,7 @@ export const siteConfig = {
     github: "https://github.com/xmchxup",
     personalSite: "https://xmchx.vercel.app/",
     runningPage: "https://xmchxup.github.io/running_page",
+    tgArchivePage: "https://xmchxup.github.io/tg_archive_web/"
   },
   navItems: [
     { href: "/", label: "Home" },

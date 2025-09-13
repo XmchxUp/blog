@@ -31,6 +31,15 @@ export function MainNavbar() {
           <span className="sr-only">Search</span>
         </Link>
         <Link
+          href={siteConfig.links.tgArchivePage}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex text-foreground items-center justify-center whitespace-nowrap rounded-md  font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
+        >
+          <Icons.thinking className="h-4 w-4" />
+          <span className="sr-only">Daily</span>
+        </Link>
+        <Link
           href={siteConfig.links.runningPage}
           target="_blank"
           rel="noreferrer"

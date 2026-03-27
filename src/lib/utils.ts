@@ -118,6 +118,14 @@ export function getPostSlug(id: string) {
   return id.replace(/\.mdx?$/, "");
 }
 
+const SPECIAL_POST_IDS = ["about.mdx", "hobby_project.mdx"];
+
+export function filterPublishedPosts(posts: Array<PostEntry>) {
+  return posts.filter(
+    (p) => !p.data.draft && !SPECIAL_POST_IDS.includes(p.id)
+  );
+}
+
 export const getDateAgoFormat = (input: string | number) => {
   const d = new Date(input);
   const today = new Date();

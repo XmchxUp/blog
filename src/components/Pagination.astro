@@ -38,7 +38,7 @@ const renderEllipsisAfter = currentPage <= totalPages - 3;
     </li>
 
     <!-- First page -->
-    <li>
+    <li class="hidden sm:block">
       <a
         href={getPageHref(1)}
         class={`inline-flex items-center justify-center h-9 w-9 rounded-md text-sm transition-colors ${currentPage === 1 ? "border border-input bg-background" : "hover:bg-accent hover:text-accent-foreground"}`}
@@ -47,13 +47,13 @@ const renderEllipsisAfter = currentPage <= totalPages - 3;
       </a>
     </li>
 
-    {renderEllipsisBefore && <li><span class="inline-flex items-center justify-center h-9 w-9">…</span></li>}
+    {renderEllipsisBefore && <li class="hidden sm:block"><span class="inline-flex items-center justify-center h-9 w-9">…</span></li>}
 
     <!-- Pages around current -->
     {Array.from({ length: totalPages }, (_, i) => i + 1)
       .filter((page) => page !== 1 && page !== totalPages && page >= currentPage - 1 && page <= currentPage + 1)
       .map((page) => (
-        <li>
+        <li class="hidden sm:block">
           <a
             href={getPageHref(page)}
             class={`inline-flex items-center justify-center h-9 w-9 rounded-md text-sm transition-colors ${currentPage === page ? "border border-input bg-background" : "hover:bg-accent hover:text-accent-foreground"}`}
@@ -63,11 +63,11 @@ const renderEllipsisAfter = currentPage <= totalPages - 3;
         </li>
       ))}
 
-    {renderEllipsisAfter && <li><span class="inline-flex items-center justify-center h-9 w-9">…</span></li>}
+    {renderEllipsisAfter && <li class="hidden sm:block"><span class="inline-flex items-center justify-center h-9 w-9">…</span></li>}
 
     <!-- Last page -->
     {totalPages > 1 && (
-      <li>
+      <li class="hidden sm:block">
         <a
           href={getPageHref(totalPages)}
           class={`inline-flex items-center justify-center h-9 w-9 rounded-md text-sm transition-colors ${currentPage === totalPages ? "border border-input bg-background" : "hover:bg-accent hover:text-accent-foreground"}`}
@@ -76,6 +76,13 @@ const renderEllipsisAfter = currentPage <= totalPages - 3;
         </a>
       </li>
     )}
+
+    <!-- Mobile: current page indicator -->
+    <li class="sm:hidden">
+      <span class="inline-flex items-center justify-center h-9 px-3 rounded-md text-sm border border-input bg-background">
+        {currentPage} / {totalPages}
+      </span>
+    </li>
 
     <!-- Next -->
     <li>

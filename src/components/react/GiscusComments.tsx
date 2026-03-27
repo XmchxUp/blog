@@ -14,9 +14,11 @@ export default function GiscusComments() {
     setTheme(isDark ? "dark" : "light");
 
     const observer = new MutationObserver(() => {
-      setTheme(
-        document.documentElement.classList.contains("dark") ? "dark" : "light"
-      );
+      const isDark = document.documentElement.classList.contains("dark");
+      setTheme((prev) => {
+        const next = isDark ? "dark" : "light";
+        return prev !== next ? next : prev;
+      });
     });
     observer.observe(document.documentElement, {
       attributes: true,
@@ -28,10 +30,10 @@ export default function GiscusComments() {
   return (
     <div className="print:rounded-none rounded-xl print:border-none border print:bg-transparent bg-card text-card-foreground print:shadow-none shadow p-6">
       <Giscus
-        repo="xmchxup/blog"
-        repoId="REPLACE_WITH_REPO_ID"
+        repo="XmchxUp/blog-comment"
+        repoId="R_kgDOG4RW8Q"
         category="Comments"
-        categoryId="REPLACE_WITH_CATEGORY_ID"
+        categoryId="DIC_kwDOG4RW8c4C5YyU"
         mapping="pathname"
         reactionsEnabled="1"
         emitMetadata="0"

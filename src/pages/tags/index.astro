@@ -2,11 +2,9 @@
 import { getCollection } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import AllAnything from "@/components/AllAnything.astro";
-import { getAllTag, sortByCount } from "@/lib/utils";
+import { getAllTag, sortByCount, filterPublishedPosts } from "@/lib/utils";
 
-const allPosts = await getCollection("post", ({ data, id }) =>
-  !data.draft && id !== "about.mdx" && id !== "hobby_project.mdx"
-);
+const allPosts = filterPublishedPosts(await getCollection("post"));
 const ALL_TAG = getAllTag(allPosts);
 const items = sortByCount(ALL_TAG, true);
 ---

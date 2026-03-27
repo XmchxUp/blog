@@ -25,6 +25,9 @@ const { title, slug, category, description, date, excerpt, cover } = Astro.props
           src={cover}
           alt={title}
           class="rounded-t-md h-48 w-full object-cover"
+          loading="lazy"
+          width="800"
+          height="343"
         />
       </div>
     </a>

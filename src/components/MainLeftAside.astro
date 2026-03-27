@@ -1,16 +1,14 @@
 ---
 import { getCollection } from "astro:content";
 import AsideCard from "./AsideCard.astro";
-import { getAllCategory, getAllTag, getAllArchive, sortByCount, sortByDate } from "@/lib/utils";
+import { getAllCategory, getAllTag, getAllArchive, sortByCount, sortByDate, filterPublishedPosts } from "@/lib/utils";
 
 const TAG_COUNT = 10;
 const ARCHIVE_COUNT = 5;
 const CATEGORY_COUNT = 5;
 
 const allPosts = await getCollection("post");
-const blogPosts = allPosts.filter(
-  (p) => !p.data.draft && p.id !== "about.mdx" && p.id !== "hobby_project.mdx"
-);
+const blogPosts = filterPublishedPosts(allPosts);
 
 const ALL_CATEGORY = getAllCategory(blogPosts);
 const ALL_TAG = getAllTag(blogPosts);
@@ -23,7 +21,7 @@ const ALL_ARCHIVE = getAllArchive(blogPosts);
     <AsideCard className="pt-6 px-2">
       <div class="flex flex-col pt-0 p-6 items-center">
         <div class="w-24 h-24 rounded-full border-2 border-gray-100 overflow-hidden">
-          <img src="/me.png" alt="Picture of the author" class="w-full h-full object-cover" />
+          <img src="/me.png" alt="Picture of the author" class="w-full h-full object-cover" width="96" height="96" loading="eager" />
         </div>
         <div class="flex flex-col items-center pt-2">
           <span class="text-2xl text-primary font-medium">Xmchx</span>

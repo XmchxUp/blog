@@ -6,11 +6,15 @@ interface WakaTimeStats {
   workingDays: number;
 }
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+const fetcher = (url: string) =>
+  fetch(url).then((res) => {
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  });
 
 export default function WakaTimeStats() {
   const { data, error, isLoading } = useSWR("/api/wakatime", fetcher, {
-    refreshInterval: 3600 * 1000,
+    refreshInterval: 0,
     revalidateOnFocus: false,
   });
 
@@ -39,6 +43,10 @@ export default function WakaTimeStats() {
         </div>
       </>
     );
+  }
+
+  if (!data?.data) {
+    return <div className="text-sm text-red-500">Error loading stats</div>;
   }
 
   const stats: WakaTimeStats = {

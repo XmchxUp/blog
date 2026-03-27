@@ -3,13 +3,11 @@ import { getCollection } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import PostItem from "@/components/PostItem.astro";
 import Pagination from "@/components/Pagination.astro";
-import { sortPosts, getPostSlug } from "@/lib/utils";
+import { sortPosts, getPostSlug, filterPublishedPosts } from "@/lib/utils";
 
 const POSTS_PER_PAGE = 7;
 
-const allPosts = await getCollection("post", ({ data, id }) =>
-  !data.draft && id !== "about.mdx" && id !== "hobby_project.mdx"
-);
+const allPosts = filterPublishedPosts(await getCollection("post"));
 const sortedPosts = sortPosts(allPosts);
 const totalPages = Math.ceil(sortedPosts.length / POSTS_PER_PAGE);
 const displayPosts = sortedPosts.slice(0, POSTS_PER_PAGE);

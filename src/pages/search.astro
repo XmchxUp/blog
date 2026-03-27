@@ -1,0 +1,21 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import SearchIsland from "@/components/react/SearchIsland";
+import { getPostSlug } from "@/lib/utils";
+
+const allPosts = await getCollection("post", ({ data, id }) =>
+  !data.draft && id !== "about.mdx" && id !== "hobby_project.mdx"
+);
+
+const searchData = allPosts.map((p) => ({
+  slug: getPostSlug(p.id),
+  title: p.data.title,
+  tags: p.data.tags ?? [],
+  excerpt: p.body.substring(0, 300),
+}));
+---
+
+<BaseLayout title="Search">
+  <SearchIsland posts={searchData} client:load />
+</BaseLayout>

@@ -1,0 +1,52 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostItem from "@/components/PostItem.astro";
+import Pagination from "@/components/Pagination.astro";
+import { sortPosts, getPostSlug } from "@/lib/utils";
+
+export async function getStaticPaths() {
+  const POSTS_PER_PAGE = 7;
+  const allPosts = await getCollection("post", ({ data, id }) =>
+    !data.draft && id !== "about.mdx" && id !== "hobby_project.mdx"
+  );
+  const sortedPosts = sortPosts(allPosts);
+  const totalPages = Math.ceil(sortedPosts.length / POSTS_PER_PAGE);
+
+  return Array.from({ length: totalPages - 1 }, (_, i) => {
+    const page = i + 2;
+    return {
+      params: { page: String(page) },
+      props: {
+        page,
+        totalPages,
+        posts: sortedPosts.slice(
+          (page - 1) * POSTS_PER_PAGE,
+          page * POSTS_PER_PAGE
+        ),
+      },
+    };
+  });
+}
+
+const { page, totalPages, posts } = Astro.props;
+---
+
+<BaseLayout title={`Page ${page}`}>
+  <div class="w-full flex flex-col items-center gap-8">
+    <div class="w-full flex flex-col gap-4">
+      {posts.map((post: any) => (
+        <PostItem
+          slug={getPostSlug(post.id)}
+          title={post.data.title}
+          category={post.data.category}
+          date={post.data.date}
+          description={post.data.description}
+          cover={post.data.cover}
+          excerpt={post.body.substring(0, 200)}
+        />
+      ))}
+    </div>
+    <Pagination currentPage={page} totalPages={totalPages} className="mx-auto flex w-full justify-center" />
+  </div>
+</BaseLayout>

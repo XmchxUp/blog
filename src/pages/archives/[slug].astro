@@ -1,0 +1,31 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostsByYear from "@/components/PostsByYear.astro";
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection("post", ({ data, id }) =>
+    !data.draft && id !== "about.mdx" && id !== "hobby_project.mdx"
+  );
+  const yearSet = new Set<string>();
+  allPosts.forEach((p) => {
+    yearSet.add(new Date(p.data.date).getFullYear().toString());
+  });
+
+  return [...yearSet].map((year) => ({
+    params: { slug: year },
+    props: {
+      year,
+      posts: allPosts.filter(
+        (p) => new Date(p.data.date).getFullYear().toString() === year
+      ),
+    },
+  }));
+}
+
+const { posts, year } = Astro.props;
+---
+
+<BaseLayout title={`Archive: ${year}`}>
+  <PostsByYear title={`Archive: ${year}`} posts={posts} />
+</BaseLayout>

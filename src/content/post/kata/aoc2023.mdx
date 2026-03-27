@@ -1,0 +1,275 @@
+---
+category: "Technology"
+date: "2024-10-27 13:00"
+title: "Advent Of Code 2023"
+tags: ["Kata", "Algorithm", "AOC"]
+---
+
+> https://github.com/XmchxUp/aoc
+
+## Advent Of Code 2023
+
+```sh
+      --------Part 1---------   --------Part 2---------
+Day       Time    Rank  Score       Time    Rank  Score
+ 20       >24h   24688      0       >24h   20033      0
+ 19       >24h   31946      0       >24h   24398      0
+ 18       >24h   31846      0       >24h   26722      0
+ 17       >24h   27130      0       >24h   25930      0
+ 16       >24h   38793      0       >24h   37663      0
+ 15       >24h   47834      0       >24h   43291      0
+ 14       >24h   46559      0       >24h   38620      0
+ 13       >24h   45864      0       >24h   40321      0
+ 12       >24h   48045      0       >24h   32993      0
+ 11       >24h   62666      0       >24h   60092      0
+ 10       >24h   68420      0       >24h   50513      0
+  9       >24h   81182      0       >24h   79783      0
+  8       >24h   92630      0       >24h   77131      0
+  7       >24h   92962      0       >24h   85195      0
+  6       >24h  109344      0       >24h  107228      0
+  5       >24h  115201      0       >24h   82961      0
+  4       >24h  153144      0       >24h  134621      0
+  3       >24h  155856      0       >24h  134857      0
+  2       >24h  213855      0       >24h  203838      0
+  1       >24h  318517      0       >24h  239741      0
+```
+
+### Day 20: Pulse Propagation
+
+part1: 模拟
+
+part2: 在我的输入里`rx`只有一个 `hb` 输入，`hb`又是一个 Conjunction。所以继续看下`hb`的所有输入，当都为 High pluse 时才输出 Low pluse。
+
+最后通过记录所有输入到 hb 的 High pluse 的按钮次数，取最小公倍数即让所有端在同一按钮次数下通 High pluse。
+
+### Day 19: Aplenty
+
+每个 workflow 对应一个 name, 和多个 rule, 一个 fallback name
+
+rule 就是(variable, operation, value, name)
+
+```rust
+#[derive(Default)]
+pub struct Aoc2023_19 {
+    workflows: HashMap<String, (Vec<(char, char, i32, String)>, String)>,
+    values: Vec<HashMap<char, i32>>,
+}
+```
+
+part2 就是使用对 values 使用 Range `ranges: HashMap<char, (i32, i32)>`
+
+(0, 4000), 每次判断都一边界去执行，找出 true_range，和 false_range
+
+true_range 继续执行下一个，false_range 如果当前 rule 都为 false 则执行更新成 false_range 执行 fallback
+
+```rust
+for (key, cmp, n, target) in rules {
+                    let (lo, hi) = curret_ranges.get(key).unwrap();
+                    let mut true_range = (0, 0);
+                    let mut false_range = (0, 0);
+                    if *cmp == '<' {
+                        true_range = (*lo, *n - 1);
+                        false_range = (*n, *hi);
+                    } else if *cmp == '>' {
+                        true_range = (*n + 1, *hi);
+                        false_range = (*lo, *n);
+                    } else {
+                        panic!("error operator");
+                    }
+
+                    if true_range.0 <= true_range.1 {
+                        let mut copy = curret_ranges.clone();
+                        copy.insert(*key, true_range);
+                        total += self.count(copy, target);
+                    }
+
+                    if false_range.0 <= false_range.1 {
+                        // 更新当前ranges为false_range
+                        let mut copy = curret_ranges.clone();
+                        copy.insert(*key, false_range);
+                        curret_ranges = copy;
+                    } else {
+                        //如果都没有match则走fallback
+                        need_fallback = false;
+                        break;
+                    }
+                }
+                if need_fallback {
+                    total += self.count(curret_ranges, fallback)
+                }
+```
+
+### Day 18: Lavaduct Lagoon
+
+[Shoelace Formula WIKI](https://en.wikipedia.org/wiki/Shoelace_formula#Other_formulas_2)
+[Pick's theorem](https://en.wikipedia.org/wiki/Pick%27s_theorem)
+
+面积 = I + B/2 - 1
+
+用鞋带公式计算边界的形状和长度，得出 B，然后解出 I。
+
+I+B 就是结果
+
+注意下面的红色围绕和点居中画的红色线是我们假设的。
+
+![image](https://github.com/XmchxUp/picx-images-hosting/raw/master/20241125/image.1hs8ytpyym.png)
+
+### Day 17: Clumsy Crucible
+
+BFS 只不过这里使用 priority queue，每次先走 heat loss 最小的点
+
+### Day 16: The Floor Will Be Lava
+
+DFS 遍历模拟 queue + set 标记是否走过
+
+主要是理解镜子反射 90 度 `/` 当向上遇到则变向右，当向下遇到则变成向左
+
+可以存储元素为(r,c,dr,dc)，这样可以判断当前的坐标和方向
+
+part1: 从左上角出发，向右
+
+part2: 从任意位置出发，朝向的方向需要判断，如在左边出发则向右，在上边发现向下。
+
+### Day 15: Lens Library
+
+模拟
+part2 用了这个 box 类型：
+
+```rust
+//                              (lens, idx)
+let mut boxes: [HashMap<String, (usize, usize)>; 256] =
+            std::array::from_fn(|_| HashMap::new());
+```
+
+删除的时候不要忘记更新索引
+
+### Day 14: Parabolic Reflector Dish
+
+partI 用暴力模拟就行了。
+
+partII：需要循环移动 1000000000 次，暴力肯定慢，思路就是维护每次循环后的状态，找到第一次出现重复状态的位置，计算开始循环到结束的长度。这样只需要取余得到最后的状态就行。
+
+如：state: [1,2,3,4,5,6] 下一次循环的状态为 3 则有重复，需要排除掉 3 之前的状态，3,4,5,6 为一次循环，(N-2)%4 得到余数就代表循环中的每几个状态。
+
+### Day 13: Point of Incidence
+
+找到可能是镜子的行地方进行上下区域判断，列的处理逻辑是一样的 。
+
+part2 就是可以有一个误差。  
+![image](https://github.com/XmchxUp/picx-images-hosting/raw/master/20241027/image.7w6toge10l.png)
+
+### Day 12: Hot Springs
+
+每判断当前是否可以匹配当前第一个大小成功，  
+会有两种情况，适配成功就继续后面的匹配。
+
+```
+              ???.### 1,1,3
+              /         \
+     ???.### 1,1,3     ??.### 1,1,3
+      /
+    ?.###   1,3
+```
+
+### Day 11: Cosmic Expansion
+
+一开始通过 part1 用的数组模拟膨胀，后面 part2 时就不行了，因为膨胀的倍数是 100 万，这时抽象出 Point，每次膨胀只需要更改相对的值就行。
+
+### Day 10: Pipe Maze
+
+管道有两个端点 , phase1 就是通过 bfs 求次数(从 S 出发向四个方向访问，看有没有管道可走)
+
+phase2：本来以为从.出发不可到达的地方个数就是结果，就用 floodfill，后面仔细看题发现是 pipe 围起来的地方。
+
+后面找资料发现其实是一个[# Point in polygon](https://en.wikipedia.org/wiki/Point_in_polygon)问题，用 Ray casting algorithm 去解。
+有许多特殊情况，
+
+```sh
+### **射线刚好与边重合**
+
+如果射线刚好与多边形的一条边重合（不仅仅是与顶点相交，而是完全重合），则可能导致无限多个交点。
+
+**处理方法**：
+
+- 这种情况通常需要被视为一种特殊情况，通常可以简单地忽略该边（视为没有交点）或只计为一个交点。
+```
+
+![image](https://github.com/XmchxUp/picx-images-hosting/raw/master/20240825/image.3k7xyowwem.webp)
+
+### Day 9: Mirage Maintenance
+
+### Day 8: Haunted Wasteland
+
+### Day 7: Camel Cards
+
+### Day 6: Wait For It
+
+### Day 5: If You Give A Seed A Fertilizer
+
+phase-2 几十亿的数遍历，直接 CPU 拉满卡死，后面改用 channel 一个一个处理，不致于处理太快。不知道要跑多久，可以改成并发的。
+
+```
+
+换种思考方式
+
+
+
+// getAnswerOptimaze
+
+// 将所有操作都使用区间（交集，差集，合并），最后得出所有location的区间(排序后的)，每一个区间的start就是结果
+
+func getAnswerOptimaze() int {
+
+// seeds-range
+
+// seeds-range.intersection(cur-level-range)
+
+// calculate next-level-offset-range
+
+// seeds-range.difference(cur-level-range)= diff-seeds-range
+
+// diff-seeds-range.union(next-level-offset-range) all-next-level-offset-range
+
+// repeat all level
+
+return 0
+
+}
+
+```
+
+### Day 4: Scratchcards
+
+在阶段 2 时，使用了一个 map 记录 cardID 可以有哪些 cardID 生成，然后获取值的时候递归的去找，注意使用 Cache，剪枝。
+
+```go
+
+Card 1: 41 48 83 86 17 | 83 86 6 31 17 9 48 53
+
+Card 2: 13 32 20 16 61 | 61 30 68 82 17 32 24 19
+
+Card 3: 1 21 53 59 44 | 69 82 63 72 16 21 14 1
+
+Card 4: 41 92 73 84 69 | 59 84 76 51 58 5 54 83
+
+Card 5: 87 83 26 28 32 | 88 30 70 12 93 22 82 36
+
+Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11
+
+END
+
+map[2:[1] 3:[1 2] 4:[1 2 3] 5:[1 3 4]]
+
+```
+
+### Day 3: Gear Ratios
+
+先构建物体，在从坐标出发
+
+// 找出所有 symbol, 所有数的坐标
+
+// 遍历 symbol，对角线，左右判断有没有数的坐标一样
+
+### Day 2: Cube Conundrum
+
+### Day 1: Trebuchet?!

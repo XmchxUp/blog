@@ -1,0 +1,49 @@
+---
+import { formatDate } from "@/lib/utils";
+
+interface Props {
+  slug: string;
+  title: string;
+  category: string;
+  date: string;
+  excerpt: string;
+  description?: string;
+  cover?: string;
+}
+
+const { title, slug, category, description, date, excerpt, cover } = Astro.props;
+---
+
+<div
+  class="print:rounded-none rounded-xl print:border-none border print:bg-transparent bg-card text-card-foreground print:shadow-none shadow"
+  title={title}
+>
+  {cover && (
+    <a href={`/post/${slug}`}>
+      <div style="position: relative; width: 100%; padding-bottom: 42.8571%;">
+        <img
+          src={cover}
+          alt={title}
+          class="rounded-t-md h-48 w-full object-cover"
+        />
+      </div>
+    </a>
+  )}
+  <div class="flex flex-col space-y-1.5 p-6 pb-2">
+    <a href={`/post/${slug}`}>
+      <h3 class="text-2xl font-medium tracking-tight">{title}</h3>
+    </a>
+    <p class="text-sm text-muted-foreground flex flex-row flex-nowrap gap-2">
+      <time>{formatDate(date)}</time>
+      <span> · </span>
+      <a title={category} class="hover:underline" href={`/categories/${category}`}>
+        {category}
+      </a>
+    </p>
+  </div>
+  <div class="p-6 pt-0">
+    <div class="text-pretty hyphens-auto">
+      {description ?? excerpt.substring(0, 50)}
+    </div>
+  </div>
+</div>

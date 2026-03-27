@@ -1,0 +1,150 @@
+---
+author: "韩立"
+title: "Workstation"
+date: "2025-03-12 12:00"
+tags: ["Maintenance"]
+category: "Technology"
+---
+
+> 2025-03-12 目前主要使用Windows+wsl2/Ubuntu两种系统下开发，之前用公司mac，想换但是太贵。
+
+## Vscode & Jetbrains & LazyVim
+
+> https://github.com/xmchxup/dotfiles/
+
+主要使用Vscode，还管什么IDE核心还是用Vim，
+
+
+## 各语言的 Formatter 和 Linter
+
+Formatter
+
+- Python -autopep8 / Black
+- Java - Google Java Format
+- C++ - Clang-Format
+- JavaScript/TypeScript - Prettier
+- Ruby - RuboCop
+- Go - gofmt
+- Rust - Rustfmt
+
+Linter
+
+- Python - pylint/ruff
+- Java - checkstyle / SpotBugs
+- C++ - clang-tidy (clangd) / IntelliSense in Visual Studio
+- JavaScript/TypeScript - ESLint
+- Ruby - RuboCop
+- Go - Golangci-lint
+- Rust - Clippy
+
+## 主题配色
+
+> 最近主要用Light了
+
+- Github Light Theme
+- Atom One Light Theme
+- Atom One Dark Theme
+- Penumbra 有明暗两个主题，据说是通过数学计算得到的、最有利于感知的配色方案。
+- Dracula
+
+## 图床
+
+[PicX](https://picx.xpoet.cn/#/upload)
+
+## Java
+
+> 更建议只在Windows下开发使用Jetbrains IDE，很方便的管理
+
+
+### jenv: Manage your Java environment
+
+> https://github.com/jenv/jenv
+
+### 原始人多版本切换方案
+
+~/.bashrc
+
+```sh
+JAVA_HOME_8=/Library/Java/JavaVirtualMachines/jdk1.8.0_192.jdk/Contents/Home
+JAVA_HOME_11=/Users/Kevin/development/tools/jdk-11.0.16.1.jdk/Contents/Home
+JAVA_HOME_17=/Users/Kevin/development/tools/jdk-17.0.4.1.jdk/Contents/Home
+JRE_HOME=$JAVA_HOME/jre
+PATH=$PATH:$JAVA_HOME/bin
+CLASSPATH=$JAVA_HOME/lib/tools.jar:$JAVA_HOME/lib/dt.jar:.
+export JAVA_HOME=$JAVA_HOME_8
+export JRE_HOME
+export PATH
+export CLASSPATH
+
+alias jdk8="export JAVA_HOME=$JAVA_HOME_8"
+alias jdk11="export JAVA_HOME=$JAVA_HOME_11"
+alias jdk17="export JAVA_HOME=$JAVA_HOME_17"
+```
+
+source ~/.bashrc
+
+![image](https://cdn.jsdelivr.net/gh/XmchxUp/cloudimg@master/img/image.4bvku01jp2g0.webp)
+
+## Python
+
+最近主要全部使用 [uv](https://github.com/astral-sh/uv): An extremely fast Python package and project manager, written in Rust.
+
+设置默认使用 python3
+
+```sh
+sudo update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1
+sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1
+```
+
+- 安装可执行文件使用[pix](https://github.com/pypa/pipx)
+- 项目开发不同版本 Python 使用 [pyenv](https://github.com/pyenv/pyenv)
+- 项目依赖管理使用 [PDM](https://github.com/pdm-project/pdm)
+
+## Node.js
+
+- 版本管理使用[NVM](https://github.com/nvm-sh/nvm)
+- 依赖管理使用[PNpm](https://pnpm.io/)
+
+## 代理
+
+[Clash Nyanpasu～(∠・ω< )⌒☆​](https://github.com/libnyanpasu/clash-nyanpasu)
+
+
+## Zsh && Oh My Zsh
+
+> [安装](https://zhuanlan.zhihu.com/p/58073103) [插件](https://zhuanlan.zhihu.com/p/61447507)
+
+```sh
+plugins=(git zsh-autosuggestions zsh-syntax-highlighting sudo wakatime zsh-vi-mode)
+```
+
+## Windows + WSL2(ubuntu)
+
+### 设置 root 用户的密码
+
+管理员模式打开 powershell, 改变 ubuntu 默认切换的用户 ubuntu2004.exe config --default-user root(这里没用管理员模式又 gg 了直接打不开 ubuntu 了), 关闭 wsl --shutdown 再打开 ubuntu 修改密码 passwd。最后在改回之前的默认用户 ubuntu2204.exe config --default-user tesla。
+
+### 图形化配置~~无缝衔接
+
+> [参考 1](https://zhuanlan.zhihu.com/p/146146238)  
+> [参考 2](https://github.com/davidbombal/wsl2/blob/main/ubuntu_gui_youtube)
+> 建议使用 Windows X Lanuch(避免 qemu 的坑)
+
+#### 安装 VcXsrc
+
+> [下载](https://sourceforge.net/projects/vcxsrv/)
+
+multiple windows 可以无缝连续直接在 terminal 里用
+
+如果连接不行可以在配置选项时另-ac 参数[see](https://www.bilibili.com/read/cv11143517)
+
+#### 配置与启动 xfce4
+
+```bash
+sudo apt install -y xfce4
+ # 导出
+$ vim ~/.bashrc
+export DISPLAY=$(cat /etc/resolv.conf | grep nameserver | awk '{print $2}'):0
+```
+
+![image](https://xmchxup.github.io/cloudimg/20220921/image.3demx18juhy0.webp)

@@ -1,0 +1,17 @@
+---
+category: "Technology"
+date: "2024-05-06 22:40"
+title: "从一个 Wiki 地址如何一步一步的到另一个 Wiki 地址"
+tags: ["Algorithm"]
+---
+
+[Code](https://github.com/cs-learning-every-day/CS106L/tree/main/cs106L-assignment1)
+
+## Problem
+
+一个 start_wiki_page 中点击 wiki 内部连接最终到达想要的 end_wiki_page 中。
+
+## 思想
+
+BFS，优先遍历最相关的网站。  
+相关性可以简单定义为:start_wiki_page 中的所有 link，和 end_wiki_page 中的所有 link，共有的 link 数。

@@ -1,0 +1,97 @@
+---
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  className?: string;
+}
+
+const { currentPage, totalPages, className } = Astro.props;
+
+const prevPage = currentPage - 1;
+const nextPage = currentPage + 1;
+const canGoBack = currentPage > 1;
+const canGoForward = currentPage < totalPages;
+
+const getPageHref = (page: number) => (page === 1 ? "/" : `/page/${page}/`);
+
+const renderEllipsisBefore = currentPage > 3;
+const renderEllipsisAfter = currentPage <= totalPages - 3;
+---
+
+<nav class={`flex items-center justify-center ${className ?? ""}`} aria-label="Pagination">
+  <ul class="flex flex-row items-center gap-1">
+    <!-- Previous -->
+    <li>
+      {canGoBack ? (
+        <a
+          href={getPageHref(prevPage)}
+          class="inline-flex items-center justify-center h-9 px-4 py-2 rounded-md text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+          aria-label="Previous page"
+        >
+          ← Previous
+        </a>
+      ) : (
+        <span class="inline-flex items-center justify-center h-9 px-4 py-2 rounded-md text-sm opacity-50 pointer-events-none">
+          ← Previous
+        </span>
+      )}
+    </li>
+
+    <!-- First page -->
+    <li>
+      <a
+        href={getPageHref(1)}
+        class={`inline-flex items-center justify-center h-9 w-9 rounded-md text-sm transition-colors ${currentPage === 1 ? "border border-input bg-background" : "hover:bg-accent hover:text-accent-foreground"}`}
+      >
+        1
+      </a>
+    </li>
+
+    {renderEllipsisBefore && <li><span class="inline-flex items-center justify-center h-9 w-9">…</span></li>}
+
+    <!-- Pages around current -->
+    {Array.from({ length: totalPages }, (_, i) => i + 1)
+      .filter((page) => page !== 1 && page !== totalPages && page >= currentPage - 1 && page <= currentPage + 1)
+      .map((page) => (
+        <li>
+          <a
+            href={getPageHref(page)}
+            class={`inline-flex items-center justify-center h-9 w-9 rounded-md text-sm transition-colors ${currentPage === page ? "border border-input bg-background" : "hover:bg-accent hover:text-accent-foreground"}`}
+          >
+            {page}
+          </a>
+        </li>
+      ))}
+
+    {renderEllipsisAfter && <li><span class="inline-flex items-center justify-center h-9 w-9">…</span></li>}
+
+    <!-- Last page -->
+    {totalPages > 1 && (
+      <li>
+        <a
+          href={getPageHref(totalPages)}
+          class={`inline-flex items-center justify-center h-9 w-9 rounded-md text-sm transition-colors ${currentPage === totalPages ? "border border-input bg-background" : "hover:bg-accent hover:text-accent-foreground"}`}
+        >
+          {totalPages}
+        </a>
+      </li>
+    )}
+
+    <!-- Next -->
+    <li>
+      {canGoForward ? (
+        <a
+          href={getPageHref(nextPage)}
+          class="inline-flex items-center justify-center h-9 px-4 py-2 rounded-md text-sm transition-colors hover:bg-accent hover:text-accent-foreground"
+          aria-label="Next page"
+        >
+          Next →
+        </a>
+      ) : (
+        <span class="inline-flex items-center justify-center h-9 px-4 py-2 rounded-md text-sm opacity-50 pointer-events-none">
+          Next →
+        </span>
+      )}
+    </li>
+  </ul>
+</nav>

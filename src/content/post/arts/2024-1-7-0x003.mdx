@@ -1,0 +1,218 @@
+---
+author: "韩立"
+title: "2024-01-07 周记 0x003"
+date: "2024-01-07"
+category: "Life"
+tags: ["Weekly"]
+---
+
+## Life
+
+前段时间晚上跑步顶不住，太冷了，现在温度稍微好转，一周两次五公里吧。做点室内的锻炼活动。
+
+每天五十个俯卧撑。。。
+
+每周还是有个固定时间看看电视，游戏放松下。
+
+这周没有吃外卖，健康的一周 😊。
+
+感觉双休日每次吃完饭可以散步半小时左右。
+
+## Share
+
+### SAT Solver
+
+[repo](https://github.com/XmchxUp/goSudoku) 写了个 Sudoku 使用 SAT 来解([Boolean satisfiability problem](https://en.wikipedia.org/wiki/Boolean_satisfiability_problem))
+
+```go
+例如 3\*3 的 board
+X X 3
+4 X 6
+7 8 X
+
+条件有：
+外维数组是里的元素是and的关系
+里面子数组里的元素是or的关系
+[
+  [((0,2,3), True)], //表示(0,2)的位置是3 And
+  ...
+  [((2,1,8), True)],
+  // 按下面的思想, 继续列出所有条件，这里只举例
+  // 即 (0,0)==2 and (0,1)!=2 and (0,2)!=2
+  [((0,0,2), True)]
+  [((0,1,2), False)]
+  [((0,2,2), False)]
+
+  ...
+]
+```
+
+思想:
+
+- 初始化已经在 board 上确定的元素的条件。
+- 对于每个 cell 要求只能是 1-9 中的数，并且不能出现两种情况(即是 1 又是 2)。
+- 每行，每列要求只能出现一次是 1-9。如行要求举例:Pos(0,0)=1 时要求 Pos(0,1)..Pos(0,8)不能是 1。
+- 同理对 3\*3 块做要求。
+
+```go
+// SudokuBoardToSatFormula converts a sudoku board to a SAT formula
+func SudokuBoardToSatFormula(sudokuBoard [][]int) Formula {
+	N := 9
+	n := 3
+	formula := Formula{}
+
+	// Initial state constraints
+	for r := 0; r < N; r++ {
+		for c := 0; c < N; c++ {
+			d := sudokuBoard[r][c]
+			if d != 0 {
+				literal := Literal{Variable: literalVar(r, c, d), Value: true}
+				clause := Clause{literal}
+				formula = append(formula, clause)
+			}
+		}
+	}
+
+	// Cell constraints
+	for r := 0; r < N; r++ {
+		for c := 0; c < N; c++ {
+			// At least one number in each cell
+			clause := Clause{}
+			for d := 1; d <= N; d++ {
+				clause = append(clause, Literal{Variable: literalVar(r, c, d), Value: true})
+			}
+			formula = append(formula, clause)
+
+			// At most one number in each cell
+			for i := 1; i <= N; i++ {
+				clause = Clause{}
+				for j := i + 1; j <= N; j++ {
+					clause = append(clause, Literal{Variable: literalVar(r, c, i), Value: false},
+						Literal{Variable: literalVar(r, c, j), Value: false})
+				}
+				if len(clause) > 0 {
+					formula = append(formula, clause)
+				}
+			}
+		}
+	}
+
+	// Row and Column constraints
+	for d := 1; d <= N; d++ {
+		for r := 0; r < N; r++ {
+			// Row constraint
+			clause := Clause{}
+			for c := 0; c < N; c++ {
+				clause = append(clause, Literal{Variable: literalVar(r, c, d), Value: true})
+			}
+			formula = append(formula, clause)
+
+			// Column constraint
+			clause = Clause{}
+			for c := 0; c < N; c++ {
+				clause = append(clause, Literal{Variable: literalVar(c, r, d), Value: true})
+			}
+			formula = append(formula, clause)
+
+			// At most one number in each row and column
+			for c1 := 0; c1 < N; c1++ {
+				for c2 := c1 + 1; c2 < N; c2++ {
+					formula = append(formula, Clause{
+						Literal{Variable: literalVar(r, c1, d), Value: false},
+						Literal{Variable: literalVar(r, c2, d), Value: false},
+					}, Clause{
+						Literal{Variable: literalVar(c1, r, d), Value: false},
+						Literal{Variable: literalVar(c2, r, d), Value: false},
+					})
+				}
+			}
+		}
+	}
+
+	// Block constraints
+	for d := 1; d <= N; d++ {
+		for br := 0; br < n; br++ {
+			for bc := 0; bc < n; bc++ {
+				// At least one number in each block
+				clause := Clause{}
+				for rr := 0; rr < n; rr++ {
+					for cc := 0; cc < n; cc++ {
+						clause = append(clause, Literal{Variable: literalVar(br*n+rr, bc*n+cc, d), Value: true})
+					}
+				}
+				formula = append(formula, clause)
+
+				// At most one number in each block
+				for i := 0; i < n*n; i++ {
+					for j := i + 1; j < n*n; j++ {
+						r1, c1 := i/n, i%n
+						r2, c2 := j/n, j%n
+						formula = append(formula, Clause{
+							Literal{Variable: literalVar(br*n+r1, bc*n+c1, d), Value: false},
+							Literal{Variable: literalVar(br*n+r2, bc*n+c2, d), Value: false},
+						})
+					}
+				}
+			}
+		}
+	}
+
+	return formula
+}
+```
+
+### 在一台机器上模拟 Kubernetes 的方式
+
+- [kind](https://kind.sigs.k8s.io/docs/user/quick-start/#installation)
+- [minikube](https://minikube.sigs.k8s.io/docs/start/)
+
+## Algorithm
+
+[1235. Maximum Profit in Job Scheduling](https://leetcode.com/problems/maximum-profit-in-job-scheduling/)
+
+思路:
+
+- 首先对每个 job 按 start time 排序
+- DFS 搜索，对于 job[i]，只有选，不选两个选项
+  - 不选，那么就遍历 job[i+1]
+  - 选，寻找 job[i] end time 后 job[j]
+    - 这里可以使用二分搜索优化，找第一个>=job[i][endtime]
+- 结果就是对两个选择取 max
+
+```python
+from typing import List
+import bisect
+
+class Solution:
+    def jobScheduling(
+        self, startTime: List[int], endTime: List[int], profit: List[int]
+    ) -> int:
+        """
+        DFS搜索: 对当前i job是否选或不选两种情况遍历。
+        """
+        intervals = sorted(zip(startTime, endTime, profit))
+        cache = {}
+
+        def dfs(i: int):
+            if i == len(intervals):
+                return 0
+            if i in cache:
+                return cache[i]
+
+            # dont include i job
+            res = dfs(i + 1)
+
+            # include i job
+            # j = i + 1
+            # while j < len(intervals):
+            #     if intervals[i][1] <= intervals[j][0]:
+            #         break
+            #     j += 1
+            j = bisect.bisect_left(intervals, (intervals[i][1], -1, -1))
+            cache[i] = res = max(res, intervals[i][2] + dfs(j))
+
+            return res
+
+        return dfs(0)
+
+```

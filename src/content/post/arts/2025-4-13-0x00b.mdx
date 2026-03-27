@@ -1,0 +1,68 @@
+---
+author: "Xmchx"
+title: "2025-4-13 周记 0x00b"
+date: "2025-04-13"
+description: ""
+category: "Life"
+tags: ["Weekly"]
+---
+
+## Read
+
+> [技术雷达 | 针对当今科技领域发展的前沿指南 | Thoughtworks China](https://www.thoughtworks.com/zh-cn/radar)
+
+最新一期
+
+> [GitHub - alexpusch/rust-magic-patterns: Magical Rust patterns laid out and simplified](https://github.com/alexpusch/rust-magic-patterns)
+
+有趣
+
+> [10 Things Software Developers Should Learn about Learning – Communications of the ACM](https://cacm.acm.org/research/10-things-software-developers-should-learn-about-learning/)
+
+让我想起多年前看过的[《Learning How to Learn》课程笔记](https://linghao.io/posts/notes-learning-how-to-learn)
+
+- [过去这五年](https://linghao.io/posts/five-year-summary-2013-2018)
+- [过去这五年，我学到了什么](https://linghao.io/posts/five-year-learning-2013-2018)
+- [Grow @ Google 02: 「能用就行」还远远不够](https://linghao.io/posts/grow-at-google-02#%E4%B8%96%E7%95%8C%E4%B8%8A%E6%9C%89%E4%B8%A4%E7%B1%BB%E5%B7%A5%E7%A8%8B%E5%B8%88)
+- [Grow @ Google 01: Noogler 成长的必经之痛](https://linghao.io/posts/grow-at-google-01)
+- [我的时间管理系统](https://linghao.io/posts/my-time-management-system-2020)
+- [「程序员」和「软件工程师」是一回事吗？](https://linghao.io/posts/programming-vs-software-engineering)
+- [Grow @ Google 03: 文档意识与培养新人](https://linghao.io/posts/grow-at-google-03)
+- [A Bunch of Programming Advice I'd Give To Myself 15 Years Ago | Marcus' Blog](https://mbuffett.com/posts/programming-advice-younger-self/)
+- [Managing My Motivation, as a Solo Dev | Marcus' Blog](https://mbuffett.com/posts/maintaining-motivation/)
+- [SRE 日志：我的包去哪了？ | Manjusaka](https://www.manjusaka.blog/posts/2024/05/11/where-are-my-package/#%E5%BC%80%E7%AF%87)
+- [pwru 工具介绍和案例一则 | 卡瓦邦噶！](https://www.kawabangga.com/posts/6879)
+- [程序员职业之路的选择 | 卡瓦邦噶！](https://www.kawabangga.com/posts/640)
+- [五种类型的程序员 | 卡瓦邦噶！](https://www.kawabangga.com/posts/540)
+- [不要学习代码，要学会思考 | 卡瓦邦噶！](https://www.kawabangga.com/posts/673)
+- [程序员都是工程师吗？ | 卡瓦邦噶！](https://www.kawabangga.com/posts/698)
+
+> [Introducing Limbo: A complete rewrite of SQLite in Rust](https://turso.tech/blog/introducing-limbo-a-complete-rewrite-of-sqlite-in-rust)
+
+第一次听说 Deterministic Simulation Testing。都知道复现是解决问题最关键的一步，但是有时不确定影响因素太多，很验证复现。
+
+#### gihub gist可以上传任意东西
+
+copy出来ssh的地址我clone不了
+
+`git@gist.github.com:63106ee9791b8912ba0ff4b845b2a6a5.git`
+
+改成下面这样就可以了
+
+```sh
+git clone git@github.com:HASH.git
+```
+
+### Web browser **security**
+
+Security is hard, and browsers are incredibly complex artifacts with tens of millions of lines of code. What could go wrong? From distributed systems security to process sandboxing, and from type confusion to Spectre.
+
+[Understanding The Web Security Model](https://educatedguesswork.org/tags/web%20security/)•[Spectre.js](https://leaky.page/)•[Site Isolation](https://www.usenix.org/system/files/sec19-reis.pdf)•[CVE-2023-3420](https://github.blog/2023-09-26-getting-rce-in-chrome-with-incorrect-side-effect-in-the-jit-compiler/)
+
+攻击方法也是大开眼界，通过系统调用，来分析系统资源的信息，进而可能泄漏敏感信息。
+
+### **Build** systems
+
+Build processes are complex and computationally intensive. How can we make builds fast, reproducible, and flexible, all while retaining simplicity? Maybe studying their underpinnings and reimplementing them can teach us a bit about computing.
+
+[Build Basics (Bazel)](https://bazel.build/basics)•[Build Systems à la Carte](https://www.microsoft.com/en-us/research/uploads/prod/2018/03/build-systems-final.pdf)

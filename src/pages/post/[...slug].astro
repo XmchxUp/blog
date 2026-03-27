@@ -1,0 +1,58 @@
+---
+import { getCollection, render } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import { formatDate, getPostSlug } from "@/lib/utils";
+import GiscusComments from "@/components/react/GiscusComments";
+import ScrollToTop from "@/components/react/ScrollToTop";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("post");
+  return posts
+    .filter((post) => {
+      const slug = getPostSlug(post.id);
+      return !post.data.draft || slug === "about" || slug === "hobby_project";
+    })
+    .map((post) => ({
+      params: { slug: getPostSlug(post.id) },
+      props: { post },
+    }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+const slug = getPostSlug(post.id);
+---
+
+<BaseLayout title={post.data.title} description={post.data.description}>
+  <div class="w-full flex flex-col gap-8 min-w-0">
+    <article class="print:rounded-none rounded-xl print:border-none border print:bg-transparent bg-card text-card-foreground print:shadow-none shadow w-full">
+      <div class="flex flex-col space-y-1.5 p-6 pb-4">
+        <h1 class="text-2xl font-medium tracking-tight" id="post-title">
+          {post.data.title}
+        </h1>
+        <p class="text-muted-foreground text-sm flex flex-row gap-2">
+          <time>{formatDate(post.data.date)}</time>
+          <span> · </span>
+          <a class="hover:underline" href={`/categories/${post.data.category}`}>
+            {post.data.category}
+          </a>
+        </p>
+      </div>
+
+      <div
+        data-orientation="horizontal"
+        role="none"
+        class="shrink-0 bg-border h-[1px] w-full"
+      ></div>
+
+      <div class="p-6 pt-4">
+        <div class="prose prose-slate dark:prose-invert prose-lg max-w-none text-pretty hyphens-auto">
+          <Content />
+        </div>
+      </div>
+    </article>
+
+    <GiscusComments client:only="react" />
+    <ScrollToTop client:load />
+  </div>
+</BaseLayout>

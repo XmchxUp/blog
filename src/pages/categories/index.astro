@@ -1,0 +1,16 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import AllAnything from "@/components/AllAnything.astro";
+import { getAllCategory, sortByCount } from "@/lib/utils";
+
+const allPosts = await getCollection("post", ({ data, id }) =>
+  !data.draft && id !== "about.mdx" && id !== "hobby_project.mdx"
+);
+const ALL_CATEGORY = getAllCategory(allPosts);
+const items = sortByCount(ALL_CATEGORY, true);
+---
+
+<BaseLayout title="Categories">
+  <AllAnything title="Categories" items={items} />
+</BaseLayout>

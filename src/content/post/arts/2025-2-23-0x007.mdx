@@ -1,0 +1,131 @@
+---
+author: "Xmchx"
+title: "2025-2-23 周记 0x007"
+date: "2025-2-23"
+description: "24岁开始炒股..."
+category: "Life"
+tags: ["Weekly"]
+---
+
+## Share
+
+由于东大开始走下坡路，我又毕业工作了一年半多了，手里有点小钱，不多，我个人是不怎么消费的。
+
+主要存银行利息太低，各级地方财政都不行，后面可以预见为了救 4000W 公务员，需要大量印钱。
+
+虽然没什么钱，其它没也必要担心，但是我还是希望利率高点，看了换美元放一些券商里有 4.x%年化，所以想放一点进去，估上周去办了张香港汇丰银行卡。
+
+又问朋友咨询下，说国内其它可以买四大银行股票吃分红，每年也有不少 5%？
+
+相信芯片产业，买台积电，博通。
+
+之前也买过纳指 ETF，感觉也是很稳？
+
+故开了腾讯微证券，长桥，就打算买农业银行，台积电，博通，纳指 ETF。
+
+没必要一直盯着股票，做长期交易，一年后再总结下收益情况。
+
+## Review
+
+### NYSRG - A place for people to learn about computer systems together.
+
+> https://notes.ekzhang.com/events/nysrg
+
+打算跟着里面的内容学一下，有趣！一周一个主题，有志同道合的朋友真好，一起学习交流。
+
+### Writing git from scratch
+
+Git is a version control system used by the most of the world’s software developers.
+
+What’s under the hood? Let’s get a glimpse into the workings of the “.git” folder, featuring content-addressed storage and hash trees.
+
+[Git's database internals I: packed object store - The GitHub Blog](https://github.blog/open-source/git/gits-database-internals-i-packed-object-store/)
+
+[Commits are snapshots, not diffs - The GitHub Blog](https://github.blog/open-source/git/commits-are-snapshots-not-diffs/)
+
+[Write yourself a Git!](https://wyag.thb.lt/)
+
+> 上面的第一周
+
+> [Code](https://github.com/Ysoding/rust-git)
+
+之前其实搞过，刷公开课时候，UCB CS61B 里有个 Project 是[Gitlet](https://github.com/cs-learning-every-day/cs61b-code-sp21/blob/master/proj2/gitlet-design.md)，当时觉得搞完还是很有成就感的，Merge 规则是真复杂。
+
+虽然已经好久没搞过 Java 了，但是不影响我使用 Rust 写，跟着文档理解，无情的 python->rust 代码翻译机器。
+
+写完再看看开源实现
+
+[An idiomatic, lean, fast & safe pure Rust implementation of Git](https://github.com/GitoxideLabs/gitoxide)
+
+写代码就那会儿事，不懂就抄看理解，抄明白了，再魔改。
+
+### We switched from Java to Go and don't regret it
+
+> https://glasskube.dev/blog/from-java-to-go/
+
+写了一年的 Python 体验：水平不一致的团队真的不要用 Python，用 Python 写业务必须得有大手子，不然有你好果子吃。
+
+还是得 Java，但是 Java 搞业务这来就搞 XXX 层，有啥用，项目能活过一年吗？ 中大型还是得 Java，水平代码一致，轮子多，协作容易。
+
+面条业务代码写一次就行了，根本不需要怎么改 Copy Pate 就行，还得是 Golang。
+
+好久没写后端业务了。
+
+## Tip
+
+## Algorithm
+
+### 第 437 场周赛
+
+> https://leetcode.cn/contest/weekly-contest-437/
+
+主要不会的看大佬视频
+
+> https://www.bilibili.com/video/BV1pmAGegEcw/
+
+#### 3456. Find Special Substring of Length K
+
+遍历当后面有不一致的 char 时，判断是否到达当前 K 长度。
+
+#### 3457. Eat Pizzas!
+
+思路排序，先选 odd 天个最大的数，后面再选 even 天个第二大的数即条一个选一个。
+
+#### 3458. Select K Disjoint Special Substrings
+
+抽象成图，如"abcdbaefab"看成
+
+```sh
+abcdbaefa
+^       ^
+
+a出现的位置包含b、c、d、e、f
+
+a -> b
+     c
+     d
+     e
+     f
+
+bcdb
+^  ^
+b出现的位置包含c、d
+b -> c
+     d
+
+...
+```
+
+继续可以看成以字母为单位的线段(每一次出现的位置到最后一次出现的位置)，如果包含这个字母，则遍历所有依赖的字母，做并集操作。
+
+则类似[435. Non-overlapping Intervals](https://leetcode.cn/problems/non-overlapping-intervals/description/)
+
+即从这些线段，那否找出 K 个不重叠的？
+
+#### 3459. Length of Longest V-Shaped Diagonal Segment
+
+dfs 遍历，需要记录当前位置，目标值(从 1 出发，后面就是 2,0,2,0 即 2-target)，是否可以右转
+
+优化：常见的加 cache，还有就是可以提前计算个理论最大值，在递归前判断。
+
+[details](https://leetcode.cn/problems/length-of-longest-v-shaped-diagonal-segment/solutions/3076747/ji-yi-hua-sou-suo-pythonjavacgo-by-endle-jrjj/)

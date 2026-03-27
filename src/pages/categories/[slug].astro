@@ -1,0 +1,22 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import PostsByYear from "@/components/PostsByYear.astro";
+
+export async function getStaticPaths() {
+  const allPosts = await getCollection("post", ({ data, id }) =>
+    !data.draft && id !== "about.mdx" && id !== "hobby_project.mdx"
+  );
+  const categories = [...new Set(allPosts.map((p) => p.data.category))];
+  return categories.map((cat) => ({
+    params: { slug: cat },
+    props: { posts: allPosts.filter((p) => p.data.category === cat), slug: cat },
+  }));
+}
+
+const { posts, slug } = Astro.props;
+---
+
+<BaseLayout title={`Category: ${slug}`}>
+  <PostsByYear title={`Category: ${slug}`} posts={posts} />
+</BaseLayout>

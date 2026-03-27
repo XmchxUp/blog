@@ -1,0 +1,22 @@
+---
+import { siteConfig } from "@/config/site";
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="h-16 bg-background text-secondary-foreground print:hidden">
+  <div class="container mx-auto h-full flex flex-col md:flex-row items-center justify-center md:justify-between gap-1">
+    <span class="text-sm">
+      © {currentYear}&nbsp;
+      <a rel="author noopener" class="hover:underline text-primary" href={siteConfig.links.personalSite}>
+        Xmchx
+      </a>
+      &nbsp; All rights reserved.
+    </span>
+    <span class="text-sm">
+      Powered by&nbsp;
+      <a class="hover:underline text-primary" href="https://astro.build">Astro</a>
+      &nbsp;+&nbsp;
+      <a class="hover:underline text-primary" href="https://pages.cloudflare.com">Cloudflare Pages</a>
+    </span>
+  </div>
+</footer>

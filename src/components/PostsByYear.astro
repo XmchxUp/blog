@@ -1,0 +1,55 @@
+---
+import AsideCard from "./AsideCard.astro";
+import { categorizedPostsByYear, formatDate, getPostSlug, type PostEntry } from "@/lib/utils";
+
+interface Props {
+  title: string;
+  posts: PostEntry[];
+}
+
+const { title, posts } = Astro.props;
+const postsM = categorizedPostsByYear(posts);
+---
+
+<div class="space-y-8">
+  <AsideCard>
+    <div class="flex flex-col space-y-1.5 p-6">
+      <h1 class="text-2xl font-medium tracking-tight">{decodeURIComponent(title)}</h1>
+      <p class="text-muted-foreground text-sm">Total {posts.length} posts published.</p>
+    </div>
+  </AsideCard>
+  <div class="space-y-8">
+    {Object.keys(postsM)
+      .sort((a, b) => parseInt(b) - parseInt(a))
+      .map((year) => (
+        <div class="space-y-4 mx-1">
+          <h2 class="text-xl font-medium ml-2">{year}</h2>
+          {postsM[year].map((post) => (
+            <div class="flex flex-col gap-2">
+              <div class="print:rounded-none rounded-xl print:border-none border print:bg-transparent bg-card text-card-foreground print:shadow-none shadow flex flex-row items-center justify-between">
+                <div class="space-y-1 inline-flex flex-col h-full p-6 content-start pr-4 w-[calc(100%-128px)]">
+                  <a href={`/post/${getPostSlug(post.id)}`}>
+                    <h3 class="font-semibold tracking-tight text-base truncate">{post.data.title}</h3>
+                  </a>
+                  <p class="text-muted-foreground text-sm flex-row basis-auto gap-2 line-clamp-1 truncate">
+                    <time>{formatDate(post.data.date)}</time>
+                    <span> · </span>
+                    <a href={`/categories/${post.data.category}`}>{post.data.category}</a>
+                  </p>
+                </div>
+                {post.data.cover && (
+                  <a href={`/post/${getPostSlug(post.id)}`} class="h-24 w-32">
+                    <img
+                      src={post.data.cover}
+                      alt={post.data.title}
+                      class="h-24 w-32 md:w-36 rounded-md rounded-l-none object-cover"
+                    />
+                  </a>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      ))}
+  </div>
+</div>

@@ -1,0 +1,31 @@
+---
+import { siteConfig } from "@/config/site";
+import NavbarActions from "./react/NavbarActions";
+import MobileNavbar from "./react/MobileNavbar";
+---
+
+<header class="w-full h-auto bg-background py-2 md:py-1 overflow-x-hidden shadow">
+  <div class="w-full h-full py-2 md:container">
+    <div class="flex flex-row items-center text-foreground justify-between gap-2 lg:gap-4 xl:gap-6 px-4">
+      <a href="/" class="flex flex-row items-center gap-2">
+        <span class="font-medium text-lg">{siteConfig.name}</span>
+      </a>
+      <!-- Desktop nav -->
+      <div class="hidden lg:flex lg:flex-row items-center justify-between flex-grow gap-2">
+        <nav class="flex flex-1 items-center justify-center gap-4">
+          {siteConfig.navItems.map((item) => (
+            <a
+              href={item.href}
+              class="group inline-flex h-9 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm transition-colors hover:bg-accent hover:text-accent-foreground font-medium"
+            >
+              {item.label}
+            </a>
+          ))}
+        </nav>
+        <NavbarActions client:load />
+      </div>
+      <!-- Mobile nav -->
+      <MobileNavbar client:load />
+    </div>
+  </div>
+</header>

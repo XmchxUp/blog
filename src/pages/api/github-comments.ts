@@ -65,6 +65,8 @@ export const GET: APIRoute = async (context) => {
           createdAt: c.createdAt,
           url: c.url,
           postTitle: d.title,
+          // Giscus sets discussion title to the page pathname when mapping="pathname"
+          postUrl: d.title.startsWith("/") ? d.title : null,
         }))
       )
       .sort(

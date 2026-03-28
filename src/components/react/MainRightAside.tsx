@@ -10,6 +10,7 @@ interface RecentComment {
   createdAt: string;
   url: string;
   postTitle: string;
+  postUrl: string | null;
 }
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -48,9 +49,9 @@ function RecentComments() {
       {comments.map((c) => (
         <a
           key={c.url}
-          href={c.url}
-          target="_blank"
-          rel="noreferrer"
+          href={c.postUrl ?? c.url}
+          target={c.postUrl ? undefined : "_blank"}
+          rel={c.postUrl ? undefined : "noreferrer"}
           className="flex items-start gap-2 group"
         >
           <img

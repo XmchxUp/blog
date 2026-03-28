@@ -1,6 +1,5 @@
 ---
-import AsideCard from "./AsideCard.astro";
-import { categorizedPostsByYear, formatDate, getPostSlug, type PostEntry } from "@/lib/utils";
+import { categorizedPostsByYear, getPostSlug, type PostEntry } from "@/lib/utils";
 
 interface Props {
   title: string;
@@ -9,47 +8,39 @@ interface Props {
 
 const { title, posts } = Astro.props;
 const postsM = categorizedPostsByYear(posts);
+const years = Object.keys(postsM).sort((a, b) => parseInt(b) - parseInt(a));
 ---
 
-<div class="space-y-8">
-  <AsideCard>
-    <div class="flex flex-col space-y-1.5 p-6">
-      <h1 class="text-2xl font-medium tracking-tight">{decodeURIComponent(title)}</h1>
-      <p class="text-muted-foreground text-sm">Total {posts.length} posts published.</p>
-    </div>
-  </AsideCard>
-  <div class="space-y-8">
-    {Object.keys(postsM)
-      .sort((a, b) => parseInt(b) - parseInt(a))
-      .map((year) => (
-        <div class="space-y-4 mx-1">
-          <h2 class="text-xl font-medium ml-2">{year}</h2>
-          {postsM[year].map((post) => (
-            <div class="flex flex-col gap-2">
-              <div class="print:rounded-none rounded-xl print:border-none border print:bg-transparent bg-card text-card-foreground print:shadow-none shadow flex flex-row items-center justify-between">
-                <div class="space-y-1 inline-flex flex-col h-full p-6 content-start pr-4 w-[calc(100%-128px)]">
-                  <a href={`/post/${getPostSlug(post.id)}`}>
-                    <h3 class="font-semibold tracking-tight text-base truncate">{post.data.title}</h3>
-                  </a>
-                  <p class="text-muted-foreground text-sm flex-row basis-auto gap-2 line-clamp-1 truncate">
-                    <time>{formatDate(post.data.date)}</time>
-                    <span> · </span>
-                    <a href={`/categories/${post.data.category}`}>{post.data.category}</a>
-                  </p>
-                </div>
-                {post.data.cover && (
-                  <a href={`/post/${getPostSlug(post.id)}`} class="h-24 w-32">
-                    <img
-                      src={post.data.cover}
-                      alt={post.data.title}
-                      class="h-24 w-32 md:w-36 rounded-md rounded-l-none object-cover"
-                    />
-                  </a>
-                )}
-              </div>
-            </div>
-          ))}
+<div class="flex flex-col gap-4">
+  <div class="rounded-xl border bg-card shadow px-5 py-4 flex items-center justify-between">
+    <h1 class="text-xl font-bold tracking-tight">{decodeURIComponent(title)}</h1>
+    <span class="text-sm text-muted-foreground">{posts.length} posts</span>
+  </div>
+
+  <div class="rounded-xl border bg-card shadow overflow-hidden">
+    {years.map((year, yi) => (
+      <>
+        <div class={`px-5 py-2 bg-muted/40 flex items-center gap-2 ${yi > 0 ? "border-t border-border" : ""}`}>
+          <span class="text-xs font-semibold uppercase tracking-wider text-muted-foreground">{year}</span>
+          <span class="text-xs text-muted-foreground/60">· {postsM[year].length}</span>
         </div>
-      ))}
+        {postsM[year].map((post, i) => (
+          <a
+            href={`/post/${getPostSlug(post.id)}`}
+            class={`flex items-center gap-3 px-5 py-2.5 hover:bg-accent/50 transition-colors group ${i < postsM[year].length - 1 ? "border-b border-border/40" : ""}`}
+          >
+            <time class="text-xs text-muted-foreground tabular-nums shrink-0 w-10">
+              {new Date(post.data.date).toLocaleDateString("en-US", { month: "2-digit", day: "2-digit" })}
+            </time>
+            <span class="text-sm font-medium flex-grow truncate group-hover:text-primary transition-colors">
+              {post.data.title}
+            </span>
+            <span class="text-xs text-muted-foreground shrink-0 hidden sm:inline-flex items-center border border-border/60 rounded-full px-2 py-0.5">
+              {post.data.category}
+            </span>
+          </a>
+        ))}
+      </>
+    ))}
   </div>
 </div>

@@ -43,6 +43,7 @@ export const GET: APIRoute = async (context) => {
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
+        "User-Agent": "blog-697/1.0",
       },
       body: JSON.stringify({ query: QUERY, variables: { owner, name } }),
     });

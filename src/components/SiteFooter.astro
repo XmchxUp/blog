@@ -3,8 +3,8 @@ import { siteConfig } from "@/config/site";
 const currentYear = new Date().getFullYear();
 ---
 
-<footer class="h-16 bg-background text-secondary-foreground print:hidden">
-  <div class="container mx-auto h-full flex flex-col md:flex-row items-center justify-center md:justify-between gap-1">
+<footer class="border-t border-border bg-background/80 text-muted-foreground print:hidden">
+  <div class="container mx-auto py-5 flex flex-col md:flex-row items-center justify-center md:justify-between gap-1">
     <span class="text-sm">
       © {currentYear}&nbsp;
       <a rel="author noopener" class="hover:underline text-primary" href={siteConfig.links.personalSite}>

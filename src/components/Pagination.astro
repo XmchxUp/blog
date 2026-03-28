@@ -41,7 +41,7 @@ const renderEllipsisAfter = currentPage <= totalPages - 3;
     <li class="hidden sm:block">
       <a
         href={getPageHref(1)}
-        class={`inline-flex items-center justify-center h-9 w-9 rounded-md text-sm transition-colors ${currentPage === 1 ? "border border-input bg-background" : "hover:bg-accent hover:text-accent-foreground"}`}
+        class={`inline-flex items-center justify-center h-9 w-9 rounded-md text-sm transition-colors ${currentPage === 1 ? "bg-primary text-primary-foreground font-medium" : "hover:bg-accent hover:text-accent-foreground"}`}
       >
         1
       </a>
@@ -56,7 +56,7 @@ const renderEllipsisAfter = currentPage <= totalPages - 3;
         <li class="hidden sm:block">
           <a
             href={getPageHref(page)}
-            class={`inline-flex items-center justify-center h-9 w-9 rounded-md text-sm transition-colors ${currentPage === page ? "border border-input bg-background" : "hover:bg-accent hover:text-accent-foreground"}`}
+            class={`inline-flex items-center justify-center h-9 w-9 rounded-md text-sm transition-colors ${currentPage === page ? "bg-primary text-primary-foreground font-medium" : "hover:bg-accent hover:text-accent-foreground"}`}
           >
             {page}
           </a>
@@ -70,7 +70,7 @@ const renderEllipsisAfter = currentPage <= totalPages - 3;
       <li class="hidden sm:block">
         <a
           href={getPageHref(totalPages)}
-          class={`inline-flex items-center justify-center h-9 w-9 rounded-md text-sm transition-colors ${currentPage === totalPages ? "border border-input bg-background" : "hover:bg-accent hover:text-accent-foreground"}`}
+          class={`inline-flex items-center justify-center h-9 w-9 rounded-md text-sm transition-colors ${currentPage === totalPages ? "bg-primary text-primary-foreground font-medium" : "hover:bg-accent hover:text-accent-foreground"}`}
         >
           {totalPages}
         </a>
@@ -79,7 +79,7 @@ const renderEllipsisAfter = currentPage <= totalPages - 3;
 
     <!-- Mobile: current page indicator -->
     <li class="sm:hidden">
-      <span class="inline-flex items-center justify-center h-9 px-3 rounded-md text-sm border border-input bg-background">
+      <span class="inline-flex items-center justify-center h-9 px-3 rounded-md text-sm bg-primary text-primary-foreground font-medium">
         {currentPage} / {totalPages}
       </span>
     </li>

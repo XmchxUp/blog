@@ -24,19 +24,24 @@ const slug = getPostSlug(post.id);
 ---
 
 <BaseLayout title={post.data.title} description={post.data.description}>
-  <div class="w-full flex flex-col gap-8 min-w-0">
+  <div class="w-full flex flex-col gap-6 min-w-0">
     <article class="print:rounded-none rounded-xl print:border-none border print:bg-transparent bg-card text-card-foreground print:shadow-none shadow w-full">
-      <div class="flex flex-col space-y-1.5 p-6 pb-4">
-        <h1 class="text-2xl font-medium tracking-tight" id="post-title">
-          {post.data.title}
-        </h1>
-        <p class="text-muted-foreground text-sm flex flex-row gap-2">
-          <time>{formatDate(post.data.date)}</time>
-          <span> · </span>
-          <a class="hover:underline" href={`/categories/${post.data.category}`}>
+      <div class="p-6 pb-4">
+        <div class="flex flex-row items-center gap-2 mb-3">
+          <a
+            href={`/categories/${post.data.category}`}
+            class="inline-flex items-center rounded-full border border-primary/30 bg-accent text-accent-foreground px-2.5 py-0.5 text-xs font-medium hover:bg-primary hover:text-primary-foreground transition-colors"
+          >
             {post.data.category}
           </a>
-        </p>
+          <time class="text-xs text-muted-foreground">{formatDate(post.data.date)}</time>
+        </div>
+        <h1 class="text-3xl font-bold tracking-tight leading-tight" id="post-title">
+          {post.data.title}
+        </h1>
+        {post.data.description && (
+          <p class="mt-2 text-muted-foreground text-base leading-relaxed">{post.data.description}</p>
+        )}
       </div>
 
       <div
@@ -45,8 +50,8 @@ const slug = getPostSlug(post.id);
         class="shrink-0 bg-border h-[1px] w-full"
       ></div>
 
-      <div class="p-6 pt-4">
-        <div class="prose prose-slate dark:prose-invert prose-lg max-w-none text-pretty hyphens-auto">
+      <div class="p-6 pt-5">
+        <div class="prose dark:prose-invert prose-violet prose-base max-w-none text-pretty hyphens-auto">
           <Content />
         </div>
       </div>

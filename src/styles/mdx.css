@@ -21,13 +21,13 @@
 }
 
 [data-rehype-pretty-code-figure] [data-highlighted-line] {
-  background: rgba(200, 200, 255, 0.1);
-  @apply border-l-blue-400;
+  background: rgba(167, 139, 250, 0.12);
+  @apply border-l-violet-400;
 }
 
 [data-rehype-pretty-code-figure] [data-highlighted-chars] {
-  @apply rounded bg-zinc-600/50;
-  box-shadow: 0 0 0 4px rgb(82 82 91 / 0.5);
+  @apply rounded bg-violet-900/40;
+  box-shadow: 0 0 0 4px rgb(109 40 217 / 0.35);
 }
 
 [data-rehype-pretty-code-figure] [data-chars-id] {

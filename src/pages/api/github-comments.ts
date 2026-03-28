@@ -48,7 +48,8 @@ export const GET: APIRoute = async (context) => {
     });
 
     if (!response.ok) {
-      throw new Error(`GitHub API error: ${response.status}`);
+      const body = await response.text();
+      throw new Error(`GitHub API error: ${response.status} - ${body}`);
     }
 
     const json = await response.json();

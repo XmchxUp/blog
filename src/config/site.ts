@@ -3,6 +3,15 @@ export const siteConfig = {
   url: "https://xmchxup.github.io",
   description: "Technology & Social Life",
   author: "Xmchx",
+  gaId: "G-N80PEBXDRQ",
+  wakatimeUrl: "https://wakatime.com/@Tesla",
+  giscus: {
+    repo: "XmchxUp/blog-comment" as const,
+    repoId: "R_kgDOG4RW8Q",
+    category: "Comments" as const,
+    categoryId: "DIC_kwDOG4RW8c4C5YyU",
+  },
+  specialPostIds: ["about.mdx", "hobby_project.mdx"],
   links: {
     github: "https://github.com/xmchxup",
     personalSite: "https://xmchx.vercel.app/",

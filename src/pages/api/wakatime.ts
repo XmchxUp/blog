@@ -2,8 +2,8 @@ import type { APIRoute } from "astro";
 
 export const prerender = false;
 
-export const GET: APIRoute = async () => {
-  const apiKey = import.meta.env.WAKATIME_API_KEY ?? "";
+export const GET: APIRoute = async (context) => {
+  const apiKey = (context.locals.runtime.env.WAKATIME_API_KEY as string) ?? "";
   try {
     const response = await fetch(
       "https://wakatime.com/api/v1/users/current/stats/last_7_days",

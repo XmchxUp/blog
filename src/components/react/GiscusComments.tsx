@@ -1,5 +1,6 @@
 import Giscus from "@giscus/react";
 import { useEffect, useState } from "react";
+import { siteConfig } from "@/config/site";
 
 export default function GiscusComments() {
   const [theme, setTheme] = useState<"light" | "dark">("light");
@@ -28,12 +29,12 @@ export default function GiscusComments() {
   }, []);
 
   return (
-    <div className="print:rounded-none rounded-xl print:border-none border print:bg-transparent bg-card text-card-foreground print:shadow-none shadow p-6">
+    <div className="card-base p-6">
       <Giscus
-        repo="XmchxUp/blog-comment"
-        repoId="R_kgDOG4RW8Q"
-        category="Comments"
-        categoryId="DIC_kwDOG4RW8c4C5YyU"
+        repo={siteConfig.giscus.repo}
+        repoId={siteConfig.giscus.repoId}
+        category={siteConfig.giscus.category}
+        categoryId={siteConfig.giscus.categoryId}
         mapping="pathname"
         reactionsEnabled="1"
         emitMetadata="0"

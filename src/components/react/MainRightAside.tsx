@@ -1,5 +1,6 @@
 import WakaTimeStats from "./WakaTimeStats";
 import { getDateAgoFormat } from "@/lib/utils";
+import { siteConfig } from "@/config/site";
 
 interface RecentPost {
   id: string;
@@ -27,7 +28,7 @@ export default function MainRightAside({ recentPosts }: Props) {
         <AsideCard>
           <div className="flex flex-col space-y-1.5 p-6 pb-2 pt-4">
             <a
-              href="https://wakatime.com/@Tesla"
+              href={siteConfig.wakatimeUrl}
               className="tracking-tight text-md font-normal"
             >
               Coding Stats

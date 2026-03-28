@@ -53,7 +53,7 @@ const ALL_ARCHIVE = getAllArchive(blogPosts);
         {sortByCount(ALL_CATEGORY, true).slice(0, CATEGORY_COUNT).map((category) => (
           <a
             href={`/categories/${category}`}
-            class="items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-xs flex flex-row gap-2 w-full font-normal"
+            class="aside-nav-link"
           >
             <span class="text-sm flex-grow truncate">{category}</span>
             <span class="text-sm">{ALL_CATEGORY[category]}</span>
@@ -71,7 +71,7 @@ const ALL_ARCHIVE = getAllArchive(blogPosts);
         {sortByDate(ALL_ARCHIVE, true).slice(0, ARCHIVE_COUNT).map((archive) => (
           <a
             href={`/archives/${archive}`}
-            class="items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 hover:bg-accent hover:text-accent-foreground h-8 rounded-md px-3 text-xs flex flex-row gap-2 w-full font-normal"
+            class="aside-nav-link"
           >
             <span class="text-sm flex-grow truncate">{archive}</span>
             <span class="text-sm">{ALL_ARCHIVE[archive]}</span>

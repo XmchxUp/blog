@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { siteConfig } from "@/config/site";
 
 export type PostData = {
   title: string;
@@ -33,9 +34,7 @@ export function formatDate(input: string | number): string {
 
 export function sortPosts(posts: Array<PostEntry>) {
   return posts.sort((a, b) => {
-    if (a.data.date > b.data.date) return -1;
-    if (a.data.date < b.data.date) return 1;
-    return 0;
+    return new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
   });
 }
 
@@ -107,7 +106,7 @@ export function categorizedPostsByYear(posts: Array<PostEntry>) {
   const res: Record<string, PostEntry[]> = {};
   Object.keys(categorizedPosts).forEach((year) => {
     res[year] = categorizedPosts[year].sort((a, b) => {
-      return b.data.date.localeCompare(a.data.date);
+      return new Date(b.data.date).getTime() - new Date(a.data.date).getTime();
     });
   });
 
@@ -118,11 +117,9 @@ export function getPostSlug(id: string) {
   return id.replace(/\.mdx?$/, "");
 }
 
-const SPECIAL_POST_IDS = ["about.mdx", "hobby_project.mdx"];
-
 export function filterPublishedPosts(posts: Array<PostEntry>) {
   return posts.filter(
-    (p) => !p.data.draft && !SPECIAL_POST_IDS.includes(p.id)
+    (p) => !p.data.draft && !siteConfig.specialPostIds.includes(p.id)
   );
 }
 
@@ -139,7 +136,7 @@ export const getDateAgoFormat = (input: string | number) => {
   );
   const minutes = Math.floor((diffInMs % (1000 * 60 * 60)) / (1000 * 60));
 
-  if (days > 0) return `${days} days ago`;
-  if (hours > 0) return `${hours} hours ago`;
-  return `${minutes} minutes ago`;
+  if (days > 0) return `${days} ${days === 1 ? "day" : "days"} ago`;
+  if (hours > 0) return `${hours} ${hours === 1 ? "hour" : "hours"} ago`;
+  return `${minutes} ${minutes === 1 ? "minute" : "minutes"} ago`;
 };

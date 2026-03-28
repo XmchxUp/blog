@@ -63,12 +63,12 @@ const recentPosts = sortPosts(filterPublishedPosts(allPosts))
       })();
     </script>
     <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-N80PEBXDRQ"></script>
-    <script is:inline>
+    <script async src={`https://www.googletagmanager.com/gtag/js?id=${siteConfig.gaId}`}></script>
+    <script is:inline define:vars={{ gaId: siteConfig.gaId }}>
       window.dataLayer = window.dataLayer || [];
       function gtag() { dataLayer.push(arguments); }
       gtag("js", new Date());
-      gtag("config", "G-N80PEBXDRQ");
+      gtag("config", gaId);
     </script>
   </head>
   <body class="font-sans subpixel-antialiased tracking-wide text-foreground">
@@ -84,7 +84,7 @@ const recentPosts = sortPosts(filterPublishedPosts(allPosts))
       >
         <MainLeftAside />
         <slot />
-        <MainRightAside recentPosts={recentPosts} client:load />
+        <MainRightAside recentPosts={recentPosts} client:idle />
       </main>
       <SiteFooter />
     </div>

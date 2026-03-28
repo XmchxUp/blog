@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Fuse, { type FuseResult } from "fuse.js";
 import { Input } from "@/components/ui/input";
 
@@ -17,12 +17,12 @@ export default function SearchIsland({ posts }: Props) {
   const [input, setInput] = useState("");
   const [items, setItems] = useState<FuseResult<SearchPost>[]>([]);
 
-  const fuse = new Fuse(posts, {
+  const fuse = useMemo(() => new Fuse(posts, {
     keys: ["title", "tags", "excerpt"],
     includeScore: true,
     includeMatches: true,
     shouldSort: true,
-  });
+  }), [posts]);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = event.target;
@@ -32,7 +32,7 @@ export default function SearchIsland({ posts }: Props) {
 
   return (
     <div className="w-full flex flex-col gap-4">
-      <div className="print:rounded-none rounded-xl print:border-none border print:bg-transparent bg-card text-card-foreground print:shadow-none shadow">
+      <div className="card-base">
         <div className="flex flex-col space-y-1.5 p-6">
           <h3 className="font-semibold tracking-tight text-xl">Search</h3>
           <p className="text-sm text-muted-foreground">
@@ -54,7 +54,7 @@ export default function SearchIsland({ posts }: Props) {
           />
         </div>
       </div>
-      <div className="print:rounded-none rounded-xl print:border-none border print:bg-transparent bg-card text-card-foreground print:shadow-none shadow">
+      <div className="card-base">
         <div className="flex flex-col space-y-1.5 p-6">
           <p className="text-sm text-muted-foreground">Results</p>
         </div>

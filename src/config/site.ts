@@ -9,7 +9,7 @@ export const siteConfig = {
     repo: "XmchxUp/blog-comment" as const,
     repoId: "R_kgDOG4RW8Q",
     category: "Comments" as const,
-    categoryId: "DIC_kwDOG4RW8c4C5YyU",
+    categoryId: "DIC_kwDOG4RW8c4C5d2w",
   },
   specialPostIds: ["about.mdx", "hobby_project.mdx"],
   links: {

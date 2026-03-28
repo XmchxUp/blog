@@ -16,6 +16,7 @@ export default function WakaTimeStats() {
   const { data, error, isLoading } = useSWR("/api/wakatime", fetcher, {
     refreshInterval: 0,
     revalidateOnFocus: false,
+    dedupingInterval: 3_600_000, // 1 hour — matches CDN cache TTL
   });
 
   const loadingDiv = (

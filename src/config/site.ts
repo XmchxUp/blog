@@ -1,6 +1,6 @@
 export const siteConfig = {
   name: "Xmchx's Blog",
-  url: "https://xmchxup.github.io",
+  url: "https://blog-697.pages.dev",
   description: "Technology & Social Life",
   author: "Xmchx",
   gaId: "G-N80PEBXDRQ",

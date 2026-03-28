@@ -65,8 +65,13 @@ export const GET: APIRoute = async (context) => {
           createdAt: c.createdAt,
           url: c.url,
           postTitle: d.title,
-          // Giscus sets discussion title to the page pathname when mapping="pathname"
-          postUrl: d.title.startsWith("/") ? d.title : null,
+          // Giscus stores pathname without leading slash, e.g. "post/arts/2025-3-02-0x008/"
+          postUrl: (() => {
+            const t = d.title as string;
+            if (t.startsWith("/")) return t;
+            if (!t.includes(" ") && t.includes("/")) return `/${t}`;
+            return null;
+          })(),
         }))
       )
       .sort(

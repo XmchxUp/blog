@@ -17,7 +17,7 @@ export default function NavbarActions() {
         <span className="sr-only">Daily</span>
       </a>
       <a href={siteConfig.links.workoutPage} target="_blank" rel="noreferrer" className={navButtonClass}>
-        <Icons.dumbbell className="h-4 w-4" />
+        <Icons.activity className="h-4 w-4" />
         <span className="sr-only">WorkoutPage</span>
       </a>
       <a href={siteConfig.links.runningPage} target="_blank" rel="noreferrer" className={navButtonClass}>

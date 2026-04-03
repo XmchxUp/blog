@@ -15,6 +15,7 @@ export const siteConfig = {
   links: {
     github: "https://github.com/xmchxup",
     personalSite: "https://xmchx.vercel.app/",
+    workoutPage: "https://xmchxup.github.io/workout_page",
     runningPage: "https://xmchxup.github.io/running_page",
     tgArchivePage: "https://xmchxup.github.io/tg_archive_web/",
   },

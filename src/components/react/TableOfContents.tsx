@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 interface TOCItem {
   id: string;
@@ -16,10 +16,7 @@ interface Props {
 function extractTOC(content: string): TOCItem[] {
   const lines = content.split("\n");
   const toc: TOCItem[] = [];
-  // Use a tree-based approach instead of stack
-  const h2Items: TOCItem[] = [];
-
-  let currentH2: TOCItem | null = null;
+  const stack: TOCItem[] = [];
 
   for (const line of lines) {
     const match = line.match(/^(#{2,3})\s+(.+)$/);
@@ -36,60 +33,64 @@ function extractTOC(content: string): TOCItem[] {
         level,
       };
 
-      if (level === 2) {
-        currentH2 = newItem;
-        h2Items.push(newItem);
-      } else if (level === 3 && currentH2) {
-        if (!currentH2.children) {
-          currentH2.children = [];
-        }
-        currentH2.children.push(newItem);
+      // Pop items with level >= current level
+      while (stack.length > 0 && stack[stack.length - 1].level >= level) {
+        stack.pop();
       }
+
+      if (stack.length === 0) {
+        toc.push(newItem);
+      } else {
+        const parent = stack[stack.length - 1];
+        if (!parent.children) {
+          parent.children = [];
+        }
+        parent.children.push(newItem);
+      }
+
+      stack.push(newItem);
     }
   }
 
-  return h2Items;
+  return toc;
 }
 
-function TableOfContentsItem({ item }: { item: TOCItem }) {
-  const [isOpen, setIsOpen] = useState(false);
-
+function TableOfContentsItem({ item, depth = 0 }: { item: TOCItem; depth?: number }) {
+  const [isOpen, setIsOpen] = useState(true);
   const hasChildren = item.children && item.children.length > 0;
 
   return (
-    <li className="my-1">
-      <div className="flex items-center">
+    <li className="group">
+      <a
+        href={`#${item.id}`}
+        className={`flex items-center py-1.5 pr-3 -ml-3 rounded-md hover:bg-accent transition-colors ${
+          depth === 0
+            ? "text-sm font-medium text-foreground"
+            : "text-xs text-muted-foreground hover:text-foreground pl-6"
+        }`}
+      >
         {hasChildren && (
           <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="mr-1 p-0.5 hover:bg-accent rounded transition-colors"
+            onClick={(e) => {
+              e.preventDefault();
+              setIsOpen(!isOpen);
+            }}
+            className={`mr-2 p-0.5 rounded transition-transform ${
+              isOpen ? "rotate-180" : ""
+            } hover:bg-accent/50`}
             aria-label={isOpen ? "Collapse" : "Expand"}
           >
-            <svg
-              className={`w-3 h-3 transition-transform ${isOpen ? "rotate-90" : ""}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </button>
         )}
-        <a
-          href={`#${item.id}`}
-          className={`block truncate hover:text-primary transition-colors ${
-            item.level === 2
-              ? "text-sm font-medium"
-              : "text-xs text-muted-foreground ml-3"
-          }`}
-        >
-          {item.text}
-        </a>
-      </div>
+        <span className="truncate">{item.text}</span>
+      </a>
       {hasChildren && isOpen && (
-        <ul className="mt-1 border-l border-border ml-3">
+        <ul className="border-l border-border ml-3">
           {item.children!.map((child) => (
-            <TableOfContentsItem key={child.id} item={child} />
+            <TableOfContentsItem key={child.id} item={child} depth={depth + 1} />
           ))}
         </ul>
       )}
@@ -99,25 +100,45 @@ function TableOfContentsItem({ item }: { item: TOCItem }) {
 
 export default function TableOfContents({ content }: Props) {
   const [toc, setToc] = useState<TOCItem[]>([]);
+  const [activeId, setActiveId] = useState<string>("");
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const extracted = extractTOC(content);
-    setToc(extracted);
+    setToc(extractTOC(content));
   }, [content]);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveId(entry.target.id);
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    document.querySelectorAll("h2[id], h3[id]").forEach((el) => {
+      observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   if (toc.length === 0) {
     return null;
   }
 
   return (
-    <div className="rounded-xl border bg-card text-card-foreground shadow">
-      <div className="px-4 pt-4 pb-1">
+    <div className="rounded-xl border bg-card text-card-foreground shadow-sm">
+      <div className="px-4 pt-4 pb-2 border-b border-border">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          Table of Contents
+          On This Page
         </h3>
       </div>
-      <div className="px-4 pb-4 pt-2">
-        <ul className="space-y-1">
+      <div ref={containerRef} className="px-4 py-3 max-h-[60vh] overflow-y-auto custom-scrollbar">
+        <ul className="space-y-0.5">
           {toc.map((item) => (
             <TableOfContentsItem key={item.id} item={item} />
           ))}

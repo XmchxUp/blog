@@ -4,6 +4,7 @@ import BaseLayout from "@/layouts/BaseLayout.astro";
 import { formatDate, getPostSlug } from "@/lib/utils";
 import GiscusComments from "@/components/react/GiscusComments";
 import ScrollToTop from "@/components/react/ScrollToTop";
+import TableOfContents from "@/components/react/TableOfContents";
 
 export async function getStaticPaths() {
   const posts = await getCollection("post");
@@ -23,7 +24,7 @@ const { Content } = await render(post);
 const slug = getPostSlug(post.id);
 ---
 
-<BaseLayout title={post.data.title} description={post.data.description}>
+<BaseLayout title={post.data.title} description={post.data.description} tableOfContents={post.body}>
   <div class="w-full flex flex-col gap-6 min-w-0">
     <article class="print:rounded-none rounded-xl print:border-none border print:bg-transparent bg-card text-card-foreground print:shadow-none shadow w-full">
       <div class="p-6 pb-4">

@@ -13,9 +13,10 @@ interface Props {
   title?: string;
   description?: string;
   image?: string;
+  tableOfContents?: string;
 }
 
-const { title, description, image } = Astro.props;
+const { title, description, image, tableOfContents } = Astro.props;
 const pageTitle = title ? `${title} | ${siteConfig.name}` : siteConfig.name;
 const pageDescription = description ?? siteConfig.description;
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
@@ -84,7 +85,7 @@ const recentPosts = sortPosts(filterPublishedPosts(allPosts))
       >
         <MainLeftAside />
         <slot />
-        <MainRightAside recentPosts={recentPosts} client:idle />
+        <MainRightAside recentPosts={recentPosts} tableOfContents={tableOfContents} client:idle />
       </main>
       <SiteFooter />
     </div>

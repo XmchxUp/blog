@@ -2,6 +2,7 @@ import useSWR from "swr";
 import WakaTimeStats from "./WakaTimeStats";
 import { getDateAgoFormat } from "@/lib/utils";
 import { siteConfig } from "@/config/site";
+import TableOfContents from "./TableOfContents";
 
 interface RecentComment {
   author: string;
@@ -83,6 +84,7 @@ interface RecentPost {
 
 interface Props {
   recentPosts: RecentPost[];
+  tableOfContents?: string;
 }
 
 function AsideCard({ className, children }: { className?: string; children: React.ReactNode }) {
@@ -93,10 +95,17 @@ function AsideCard({ className, children }: { className?: string; children: Reac
   );
 }
 
-export default function MainRightAside({ recentPosts }: Props) {
+export default function MainRightAside({ recentPosts, tableOfContents }: Props) {
   return (
     <aside className="order-1 hidden lg:block">
       <div className="flex flex-col gap-3 w-full sticky top-16">
+        {/* Table of Contents */}
+        {tableOfContents && (
+          <AsideCard>
+            <TableOfContents content={tableOfContents} />
+          </AsideCard>
+        )}
+
         {/* WakaTime */}
         <AsideCard>
           <div className="px-4 pt-4 pb-1">

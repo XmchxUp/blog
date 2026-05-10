@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 
 interface TOCItem {
   id: string;
@@ -19,10 +19,16 @@ function extractTOC(content: string): TOCItem[] {
   const stack: TOCItem[] = [];
 
   for (const line of lines) {
-    const match = line.match(/^(#{2,3})\s+(.+)$/);
+    // Match h1-h6: # Title, ## Title, ### Title, etc.
+    const match = line.match(/^(#{1,6})\s+(.+)$/);
     if (match) {
       const level = match[1].length;
       const text = match[2].trim();
+
+      // Skip h1 (level 1) as it's the main title
+      if (level === 1) {
+        continue;
+      }
 
       // Remove markdown links from toc text
       const cleanText = text.replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
@@ -33,7 +39,7 @@ function extractTOC(content: string): TOCItem[] {
         level,
       };
 
-      // Pop items with level >= current level
+      // Pop items with level >= current level to find parent
       while (stack.length > 0 && stack[stack.length - 1].level >= level) {
         stack.pop();
       }
@@ -59,15 +65,14 @@ function TableOfContentsItem({ item, depth = 0 }: { item: TOCItem; depth?: numbe
   const [isOpen, setIsOpen] = useState(true);
   const hasChildren = item.children && item.children.length > 0;
 
+  // Calculate indent based on depth
+  const indentClass = depth === 0 ? "" : depth === 1 ? "pl-4" : "pl-8";
+
   return (
     <li className="group">
       <a
         href={`#${item.id}`}
-        className={`flex items-center py-1.5 pr-3 -ml-3 rounded-md hover:bg-accent transition-colors ${
-          depth === 0
-            ? "text-sm font-medium text-foreground"
-            : "text-xs text-muted-foreground hover:text-foreground pl-6"
-        }`}
+        className={`flex items-center py-1.5 pr-3 -ml-3 rounded-md hover:bg-accent transition-colors ${indentClass}`}
       >
         {hasChildren && (
           <button
@@ -100,31 +105,10 @@ function TableOfContentsItem({ item, depth = 0 }: { item: TOCItem; depth?: numbe
 
 export default function TableOfContents({ content }: Props) {
   const [toc, setToc] = useState<TOCItem[]>([]);
-  const [activeId, setActiveId] = useState<string>("");
-  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setToc(extractTOC(content));
   }, [content]);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveId(entry.target.id);
-          }
-        });
-      },
-      { threshold: 0.5 }
-    );
-
-    document.querySelectorAll("h2[id], h3[id]").forEach((el) => {
-      observer.observe(el);
-    });
-
-    return () => observer.disconnect();
-  }, []);
 
   if (toc.length === 0) {
     return null;
@@ -137,7 +121,7 @@ export default function TableOfContents({ content }: Props) {
           On This Page
         </h3>
       </div>
-      <div ref={containerRef} className="px-4 py-3 max-h-[60vh] overflow-y-auto custom-scrollbar">
+      <div className="px-4 py-3 max-h-[60vh] overflow-y-auto custom-scrollbar">
         <ul className="space-y-0.5">
           {toc.map((item) => (
             <TableOfContentsItem key={item.id} item={item} />

@@ -16,10 +16,13 @@ interface Props {
 function extractTOC(content: string): TOCItem[] {
   const lines = content.split("\n");
   const toc: TOCItem[] = [];
-  const stack: TOCItem[] = [];
+  // Use a tree-based approach instead of stack
+  const h2Items: TOCItem[] = [];
+
+  let currentH2: TOCItem | null = null;
 
   for (const line of lines) {
-    const match = line.match(/^(#{2,6})\s+(.+)$/);
+    const match = line.match(/^(#{2,3})\s+(.+)$/);
     if (match) {
       const level = match[1].length;
       const text = match[2].trim();
@@ -33,37 +36,23 @@ function extractTOC(content: string): TOCItem[] {
         level,
       };
 
-      // Find parent node
-      while (stack.length > 0 && stack[stack.length - 1].level >= level) {
-        stack.pop();
-      }
-
-      if (stack.length === 0) {
-        toc.push(newItem);
-      } else {
-        const parent = stack[stack.length - 1];
-        if (!parent.children) {
-          parent.children = [];
+      if (level === 2) {
+        currentH2 = newItem;
+        h2Items.push(newItem);
+      } else if (level === 3 && currentH2) {
+        if (!currentH2.children) {
+          currentH2.children = [];
         }
-        parent.children.push(newItem);
+        currentH2.children.push(newItem);
       }
-
-      stack.push(newItem);
     }
   }
 
-  return toc;
+  return h2Items;
 }
 
-function TableOfContentsItem({ item, level = 0 }: { item: TOCItem; level?: number }) {
-  const [isOpen, setIsOpen] = useState(level < 2);
-
-  // Auto-expand h2 items, collapse h3 items by default
-  useEffect(() => {
-    if (item.level === 2) {
-      setIsOpen(true);
-    }
-  }, [item.level]);
+function TableOfContentsItem({ item }: { item: TOCItem }) {
+  const [isOpen, setIsOpen] = useState(false);
 
   const hasChildren = item.children && item.children.length > 0;
 
@@ -91,18 +80,16 @@ function TableOfContentsItem({ item, level = 0 }: { item: TOCItem; level?: numbe
           className={`block truncate hover:text-primary transition-colors ${
             item.level === 2
               ? "text-sm font-medium"
-              : item.level === 3
-              ? "text-xs text-muted-foreground ml-3"
-              : "text-xs text-muted-foreground ml-6"
+              : "text-xs text-muted-foreground ml-3"
           }`}
         >
           {item.text}
         </a>
       </div>
       {hasChildren && isOpen && (
-        <ul className="mt-1">
+        <ul className="mt-1 border-l border-border ml-3">
           {item.children!.map((child) => (
-            <TableOfContentsItem key={child.id} item={child} level={child.level} />
+            <TableOfContentsItem key={child.id} item={child} />
           ))}
         </ul>
       )}
@@ -115,14 +102,7 @@ export default function TableOfContents({ content }: Props) {
 
   useEffect(() => {
     const extracted = extractTOC(content);
-    // Only show h2 and h3
-    const filtered = extracted
-      .map((item) => ({
-        ...item,
-        children: item.children?.filter((child) => child.level === 3),
-      }))
-      .filter((item) => item.level === 2 || (item.level === 3 && item.children));
-    setToc(filtered);
+    setToc(extracted);
   }, [content]);
 
   if (toc.length === 0) {

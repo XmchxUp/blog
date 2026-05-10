@@ -1,0 +1,749 @@
+---
+author: "Luke Alvoeiro @ Factory"
+title: "The Multi-Agent Architecture That Actually Ships"
+date: "2026-5-10"
+description: "AI 的瓶颈已经不再是模型能力，而是人类监督 AI 的带宽"
+category: "Life"
+tags: ["AI", "Architecture"]
+---
+
+# The Multi-Agent Architecture That Actually Ships
+
+### Luke Alvoeiro @ Factory
+
+---
+
+# 核心主题
+
+> AI 的瓶颈已经不再是模型能力，
+> 而是"人类监督 AI 的带宽"。
+
+当前很多 AI Agent 系统的问题：
+
+- 能生成代码
+- 能调用工具
+- 能完成短任务
+
+但：
+
+- 无法长期运行
+- 无法稳定协作
+- 无法持续推进复杂项目
+- 无法可靠恢复状态
+- 人类需要频繁介入
+
+Factory 的目标：
+
+> 构建真正能够连续工作数天的 Autonomous Software Agents。
+
+---
+
+# 一、传统 Agent 架构的问题
+
+## 1. Request-Response 架构太短暂
+
+大部分 Agent：
+
+```text
+User Prompt
+    ↓
+LLM
+    ↓
+Tool Call
+    ↓
+Done
+```
+
+问题：
+
+- 没有长期状态
+- 无 durable execution
+- 无任务恢复
+- 无持续 memory
+- 无长期 planning
+
+本质仍然是：
+
+```text
+Chatbot + Tool Calling
+```
+
+而不是：
+
+```text
+Persistent Autonomous System
+```
+
+---
+
+## 2. 人类监督成为瓶颈
+
+模型越来越强后：
+
+- 真正的限制不是模型智商
+- 而是人的 attention bandwidth
+
+即：
+
+```text
+一个人无法同时监督大量 AI Worker
+```
+
+导致：
+
+- backlog 清不掉
+- 人类持续成为阻塞点
+- AI 无法 scale
+
+---
+
+# 二、Multi-Agent Taxonomy（Agent 架构分类）
+
+Luke 将常见 Agent 系统分成几类。
+
+---
+
+# 1. Delegation Architecture（委派架构）
+
+结构：
+
+```text
+Planner Agent
+ ├── Backend Agent
+ ├── Frontend Agent
+ ├── Testing Agent
+ └── Database Agent
+```
+
+特点：
+
+- Planner 拆分任务
+- Worker 执行子任务
+- 适合复杂工程任务
+
+优点：
+
+- 可扩展
+- 并行化
+- 职责清晰
+
+问题：
+
+- context 分裂
+- coordination 成本高
+- merge conflict
+- state 不一致
+
+---
+
+# 2. Creator-Verifier Architecture（生成 + 验证）
+
+这是 Factory 强调最多的模式。
+
+结构：
+
+```text
+Creator Agent
+    ↓
+Verifier Agent
+```
+
+Creator：
+
+- 写代码
+- 修改系统
+- 生成方案
+
+Verifier：
+
+- Review
+- Test
+- Challenge
+- Validate
+
+核心观点：
+
+> Generation 容易产生幻觉，
+> Verification 必须独立。
+
+原因：
+
+- Agent 会对自己的输出产生偏见
+- Self-review 不可靠
+- Verification 必须解耦
+
+这是整个 talk 最重要的观点之一。
+
+---
+
+# 3. Direct Communication Architecture
+
+结构：
+
+```text
+Agent A ↔ Agent B ↔ Agent C
+```
+
+所有 Agent 直接通信。
+
+问题：
+
+- state 容易漂移
+- 信息同步困难
+- 缺少 single source of truth
+- 系统复杂度指数级上升
+
+Factory 后期逐渐避免：
+
+```text
+Fully Mesh Agent Networks
+```
+
+因为：
+
+> Agent 越多，
+> 系统越不可控。
+
+---
+
+# 三、Factory 的核心：Mission Architecture
+
+这是整个 Talk 的核心。
+
+---
+
+# Mission 的定义
+
+Mission ≠ Prompt
+
+Mission 是：
+
+```text
+长期存在的自治任务
+```
+
+特点：
+
+- 可持续运行
+- 可恢复
+- 可 checkpoint
+- 可 handoff
+- 可追踪
+- 可验证
+
+---
+
+# Mission 架构
+
+```text
+Mission
+ ├── Planner
+ ├── Worker
+ ├── Researcher
+ ├── Verifier
+ ├── Recovery Agent
+ └── Human Supervisor
+```
+
+---
+
+# 四、Mission 生命周期
+
+## 1. Task Planning
+
+Planner：
+
+- 理解目标
+- 分解任务
+- 生成 execution graph
+
+例如：
+
+```text
+Build Feature X
+ ├── Design API
+ ├── Update Backend
+ ├── Update Frontend
+ ├── Add Tests
+ └── Deploy
+```
+
+---
+
+## 2. Worker Execution
+
+Worker：
+
+- 修改代码
+- 调用工具
+- 执行 shell
+- 写测试
+- 更新文档
+
+特点：
+
+```text
+长时间 autonomous execution
+```
+
+---
+
+## 3. Verification
+
+Verifier：
+
+- Run tests
+- Review diffs
+- Validate correctness
+- Challenge assumptions
+
+关键理念：
+
+```text
+Verification > Generation
+```
+
+Factory 认为：
+
+生成代码已经不难。
+
+真正困难的是：
+
+```text
+如何稳定地产生正确代码
+```
+
+---
+
+## 4. Checkpointing
+
+Mission 会自动保存：
+
+- 当前上下文
+- 已完成任务
+- 系统状态
+- Agent memory
+- tool outputs
+
+目的：
+
+```text
+支持长期运行与恢复
+```
+
+---
+
+## 5. Recovery
+
+如果：
+
+- context overflow
+- model crash
+- tool failure
+- token limit
+- API timeout
+
+系统能够：
+
+```text
+自动恢复任务
+```
+
+而不是从头开始。
+
+---
+
+# 五、为什么他们不再推崇"大规模并行 Agent"
+
+这是 Talk 非常重要的一部分。
+
+很多 Multi-Agent Demo：
+
+```text
+100 agents simultaneously coding
+```
+
+看起来很酷。
+
+但 Factory 实际发现：
+
+```text
+Correctness exponentially degrades
+```
+
+问题：
+
+- merge conflicts
+- duplicated work
+- inconsistent assumptions
+- conflicting edits
+- coordination overhead
+
+---
+
+# 他们后来的结论
+
+更稳定的模式：
+
+```text
+Single Worker
+    +
+Independent Verifier
+```
+
+即：
+
+- 少量 Worker
+- 强 Verification
+- 强状态管理
+- 强恢复能力
+
+而不是：
+
+```text
+大量并发 Agent
+```
+
+---
+
+# 六、Mission Control（任务控制系统）
+
+Factory 构建了：
+
+```text
+Mission Control
+```
+
+类似：
+
+```text
+Cursor
++ Jira
++ CI/CD Dashboard
++ Agent Runtime
+```
+
+---
+
+# 功能
+
+## 1. 查看 Agent 状态
+
+例如：
+
+```text
+Running
+Blocked
+Waiting
+Verifying
+Recovering
+```
+
+---
+
+## 2. 查看任务树
+
+```text
+Mission
+ ├── Task A
+ ├── Task B
+ └── Task C
+```
+
+---
+
+## 3. 查看 Handoff
+
+Agent 会生成：
+
+```text
+handoff summary
+```
+
+供下一个 Agent 继续工作。
+
+---
+
+## 4. Human Intervention
+
+人类可以：
+
+- approve
+- reject
+- redirect
+- pause
+- resume
+
+但：
+
+```text
+人类不是 micromanager
+```
+
+而是：
+
+```text
+Supervisor
+```
+
+---
+
+# 七、长期运行 Agent（Days-long Agents）
+
+这是 Factory 与很多 AI Agent 框架最大的区别。
+
+---
+
+# 普通 Agent
+
+```text
+Minutes-long
+```
+
+只能：
+
+- 回答问题
+- 写一点代码
+- 完成短任务
+
+---
+
+# Factory Agent
+
+```text
+Days-long execution
+```
+
+支持：
+
+- 长时间运行
+- 自动恢复
+- 持续 planning
+- 持续 verification
+- durable state
+- autonomous iteration
+
+---
+
+# 八、与其它框架的区别
+
+## AutoGPT
+
+问题：
+
+- loop 不稳定
+- context 漂移
+- 缺少验证机制
+
+---
+
+## CrewAI
+
+优点：
+
+- agent role abstraction
+
+问题：
+
+- 偏 workflow
+- 缺 durable runtime
+
+---
+
+## LangGraph
+
+优点：
+
+- state machine
+- graph orchestration
+
+缺点：
+
+- 仍需大量工程化
+
+---
+
+## OpenAI Swarm
+
+优点：
+
+- handoff 简洁
+
+问题：
+
+- 偏 lightweight orchestration
+
+---
+
+## Factory 更关注：
+
+```text
+Persistent Production Runtime
+```
+
+而不是：
+
+```text
+Prompt Chaining
+```
+
+---
+
+# 九、Talk 的核心观点总结
+
+---
+
+## 1. AI 已经足够聪明
+
+问题不再是：
+
+```text
+模型能力
+```
+
+而是：
+
+```text
+系统架构
+```
+
+---
+
+## 2. Verification 比 Generation 更重要
+
+未来竞争力：
+
+不是：
+
+```text
+谁生成代码更快
+```
+
+而是：
+
+```text
+谁验证得更可靠
+```
+
+---
+
+## 3. 长期运行能力是关键
+
+真正的 Agent：
+
+```text
+不是一次 prompt
+```
+
+而是：
+
+```text
+持续存在的软件系统
+```
+
+---
+
+## 4. 并行 Agent 并不一定更强
+
+更多 Agent：
+
+≠ 更高正确率
+
+反而可能：
+
+- 更混乱
+- 更难维护
+- 更容易失败
+
+---
+
+## 5. Durable Execution 是未来
+
+未来 Agent 核心能力：
+
+- checkpoint
+- recovery
+- persistent memory
+- handoff
+- verification
+- supervision
+
+---
+
+# 十、一个简化版 Factory 架构图
+
+```text
+                    ┌─────────────────┐
+                    │ Human Supervisor │
+                    └────────┬────────┘
+                             │
+                    ┌────────▼────────┐
+                    │ Mission Control │
+                    └────────┬────────┘
+                             │
+          ┌──────────────────┼──────────────────┐
+          │                  │                  │
+ ┌────────▼──────┐  ┌────────▼──────┐  ┌────────▼──────┐
+ │ Planner Agent │  │ Worker Agent  │  │Verifier Agent │
+ └────────┬──────┘  └────────┬──────┘  └────────┬──────┘
+          │                  │                  │
+          └──────────────────┼──────────────────┘
+                             │
+                  ┌──────────▼──────────┐
+                  │ Durable Mission State│
+                  └──────────┬──────────┘
+                             │
+                  ┌──────────▼──────────┐
+                  │ Recovery / Resume    │
+                  └──────────────────────┘
+```
+
+---
+
+# 十一、对 AI Agent 开发者的启发
+
+如果你在做：
+
+- Coding Agent
+- AI IDE
+- AI Automation
+- Autonomous Workflow
+- Multi-Agent Systems
+
+这个 Talk 非常值得研究。
+
+尤其要关注：
+
+## 不要只关注：
+
+```text
+prompt engineering
+```
+
+而应该关注：
+
+```text
+runtime engineering
+```
+
+真正难的是：
+
+- state
+- recovery
+- verification
+- orchestration
+- durability
+
+而不是：
+
+```text
+让模型再聪明一点
+```
+
+---
+
+# 十二、一句话总结
+
+> Multi-Agent 的真正价值，
+> 不是"更多 Agent"，
+> 而是"让 AI 能长期稳定完成复杂任务"。
